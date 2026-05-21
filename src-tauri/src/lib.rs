@@ -2,7 +2,6 @@ use serde::Serialize;
 use std::fs;
 mod music;
 use music::auto_search_musics;
-use music::get_music_metadata;
 use music::get_thumb;
 
 #[derive(Serialize)]
@@ -49,7 +48,6 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             greet,
             list_dir,
-            get_music_metadata,
             get_thumb,
             auto_search_musics
         ])

@@ -22,20 +22,21 @@ export default function MusicItem({ data, expanded = false, className, collapseO
   const [thumbSrc, setThumbSrc] = useState<string | null>(null);
 
   useEffect(() => {
-    if (data.thumb) { setThumbSrc(data.thumb); return; }
     const load = async () => {
       try {
         const localPath = await invoke<string | null>("get_thumb", { path: data.path });
         setThumbSrc(localPath ? convertFileSrc(localPath) : null);
+        console.log("loading");
+
       } catch {
         setThumbSrc(null);
       }
     };
     load();
-  }, [data.path, data.thumb]);
+  }, [data.path]);
 
   const { toggle, activeId } = useZoom();
-  const displayThumb = thumbSrc ?? data.thumb;
+  const displayThumb = thumbSrc;
   const isActive = activeId === data.path;
   const shouldCollapse = !expanded && activeId !== null && !isActive;
   const collapseX = collapseOffset?.x ?? 0;
@@ -52,16 +53,16 @@ export default function MusicItem({ data, expanded = false, className, collapseO
         : { x: 0, y: 0, opacity: 1, scale: 1 }}
       onClick={() => !expanded && toggle(data.path)}
       className={cn(
-        "relative overflow-hidden rounded-xl cursor-pointer",
+        "relative overflow-hidden rounded-xl cursor-pointer border border-black ",
         expanded
-          ? "w-80 h-[420px]"       // tamanho expandido
+          ? "w-80 h-105"       // tamanho expandido
           : "w-72 h-80 shrink-0",  // tamanho na grid
         isActive && !expanded && "opacity-0 pointer-events-none", // esconde o original quando expandido
         className
       )}
     >
       {/* fundo com blur */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 rounded-2xl overflow-hidden">
         {displayThumb && (
           <img
             src={displayThumb}
@@ -70,12 +71,12 @@ export default function MusicItem({ data, expanded = false, className, collapseO
             className="absolute inset-0 w-full h-full object-cover"
           />
         )}
-        <div className="absolute inset-0 backdrop-blur-2xl" />
+        <div className="absolute inset-0  bg-black/70" />
       </div>
 
       {/* conteúdo */}
       <div className="relative z-10 flex flex-col h-full p-4">
-        <div className="flex flex-col text-white font-black uppercase text-center mb-2">
+        <div className="flex flex-col  font-black uppercase text-center mb-2">
           <span>{data.title}</span>
           <span className="font-normal text-sm opacity-70">{data.artist}</span>
         </div>
@@ -84,8 +85,8 @@ export default function MusicItem({ data, expanded = false, className, collapseO
           <div className={cn(
             "mx-auto rounded-lg overflow-hidden transition-all duration-500",
             expanded
-              ? "w-48 h-48 rounded-full animate-spin [animation-duration:20s]"
-              : "w-2/3 hover:rounded-full"
+              ? "w-48 h-48 rounded-[50%] animate-spin animation-duration-[20s]"
+              : "w-2/3 hover:rounded-[50%]"
           )}>
             <img src={displayThumb} alt={data.title ?? "capa"} className="w-full h-full object-cover" />
           </div>

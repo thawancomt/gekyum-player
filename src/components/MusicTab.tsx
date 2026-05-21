@@ -1,86 +1,69 @@
 // MusicTab.tsx
 import { MusicMeta } from "@/types/music.type";
 import MusicItem from "./MusicItem";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { useZoom } from "@/stores/useZoom";
+import { useMusics } from "@/stores/useMusics";
+import { useAlbum } from "@/stores/useAlbum";
 
 type MusicTabProps = { searchPath: string };
 
 export default function MusicTab({ searchPath }: MusicTabProps) {
-  const [files, setFiles] = useState<MusicMeta[]>([]);
-  const [collapseOffsets, setCollapseOffsets] = useState<Record<string, { x: number; y: number }>>({});
+  const [collapseOffsets] = useState<Record<string, { x: number; y: number }>>({});
   const gridRef = useRef<HTMLDivElement>(null);
+  const { setMusics, musics } = useMusics()
+  const { addAlbums } = useAlbum()
 
   useEffect(() => {
-    let active = true;
     const search = async () => {
       try {
         const res = await invoke<MusicMeta[]>("auto_search_musics", { path: searchPath });
-        if (active) setFiles(res);
-      } catch {
-        if (active) setFiles([]);
+        setMusics(res)
+
+        let albums: Record<string, MusicMeta[]> = {}
+
+        res.forEach(music => {
+          if (!music.album) return;
+
+          if (!(music.album in albums)) {
+            albums[music.album] = []
+          }
+          albums[music.album].push(music)
+        })
+        addAlbums(albums)
+
+
+      } catch (err) {
+        console.log(err);
+
       }
     };
+    if (musics.length > 1) {
+      return;
+    }
     search();
-    return () => { active = false; };
+    return () => { toggle(null) };
   }, [searchPath]);
 
   const { activeId, toggle } = useZoom();
 
   // ✅ dependências correctas
   const activeItem = useMemo(
-    () => files.find(f => f.path === activeId) ?? null,
-    [files, activeId]
+    () => musics.find(f => f.path === activeId) ?? null,
+    [musics, activeId]
   );
 
-  useLayoutEffect(() => {
-    if (!activeId) {
-      setCollapseOffsets({});
-      return;
-    }
-
-    const grid = gridRef.current;
-    if (!grid) return;
-
-    const escapeForSelector = (value: string) => {
-      if (typeof CSS !== "undefined" && typeof CSS.escape === "function") return CSS.escape(value);
-      return value.replace(/["\\]/g, "\\$&");
-    };
-
-    const activeSelector = `[data-music-path="${escapeForSelector(activeId)}"]`;
-    const activeEl = grid.querySelector<HTMLElement>(activeSelector);
-    if (!activeEl) return;
-
-    const activeRect = activeEl.getBoundingClientRect();
-    const activeCenter = {
-      x: activeRect.left + activeRect.width / 2,
-      y: activeRect.top + activeRect.height / 2,
-    };
-
-    const nextOffsets: Record<string, { x: number; y: number }> = {};
-    grid.querySelectorAll<HTMLElement>("[data-music-path]").forEach((el) => {
-      const path = el.dataset.musicPath;
-      if (!path || path === activeId) return;
-      const rect = el.getBoundingClientRect();
-      const center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-      nextOffsets[path] = {
-        x: activeCenter.x - center.x,
-        y: activeCenter.y - center.y,
-      };
-    });
-
-    setCollapseOffsets(nextOffsets);
-  }, [activeId, files]);
 
   return (
     <LayoutGroup id="music-cards">
+      <p>{musics.length}</p>
       <div
         ref={gridRef}
         className="flex flex-wrap w-full grow h-full overflow-auto justify-center items-center gap-3"
       >
-        {files.slice(0, 50).map(file => (
+        {musics.map(file => (
           <MusicItem
             key={file.path}
             data={file}

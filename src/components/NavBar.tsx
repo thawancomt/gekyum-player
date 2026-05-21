@@ -3,13 +3,27 @@ import { Button } from "./ui/button";
 import { Tab, useTab } from "@/stores/useTab";
 import { cn } from "@/lib/utils";
 import { useSideBar } from "@/stores/useSideBar";
+import { useAlbum } from "@/stores/useAlbum";
 
 export default function NavBar() {
 
   const { actions: { toggleTab }, currentTab } = useTab()
-  const { actions: { toggle }, isOpen } = useSideBar()
+  const { actions: { toggle: toggleSideBar }, isOpen: isSideBarOpen } = useSideBar()
+  const { selectedAlbum, toggleAlbum, togglePosition } = useAlbum()
 
 
+  const handleBackClick = () => {
+    if (selectedAlbum) {
+      toggleAlbum(null)
+      togglePosition({
+        x: null,
+        y: null
+      })
+    }
+    if (isSideBarOpen) {
+      toggleSideBar()
+    }
+  }
 
   return (
     <nav
@@ -19,6 +33,8 @@ export default function NavBar() {
         <Button
           className="relative flex h-12 w-4 flex-col items-center justify-center gap-1"
           aria-label="Menu"
+          onClick={handleBackClick}
+
         >
           <ArrowLeft />
         </Button>
@@ -69,9 +85,9 @@ export default function NavBar() {
       </div>
 
       <div className="absolute top-2 right-4 z-10 flex h-12 items-center gap-4">
-        {isOpen ? "T" : "F"}
+        {isSideBarOpen ? "T" : "F"}
         <Button className="flex items-center justify-center"
-          onClick={toggle}
+          onClick={toggleSideBar}
         >
           <Disc3 />
         </Button>
