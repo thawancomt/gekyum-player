@@ -1,18 +1,17 @@
 // MusicTab.tsx
 import { MusicMeta } from "@/types/music.type";
 import MusicItem from "./MusicItem";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
-import { useZoom } from "@/stores/useZoom";
+import { AnimatePresence, motion } from "framer-motion";
 import { useMusics } from "@/stores/useMusics";
 import { useAlbum } from "@/stores/useAlbum";
+import { Input } from "./ui/input";
 
 type MusicTabProps = { searchPath: string };
 
 export default function MusicTab({ searchPath }: MusicTabProps) {
   const [collapseOffsets] = useState<Record<string, { x: number; y: number }>>({});
-  const gridRef = useRef<HTMLDivElement>(null);
   const { setMusics, musics } = useMusics()
   const { addAlbums } = useAlbum()
 
@@ -44,60 +43,32 @@ export default function MusicTab({ searchPath }: MusicTabProps) {
       return;
     }
     search();
-    return () => { toggle(null) };
+    return () => { };
   }, [searchPath]);
 
-  const { activeId, toggle } = useZoom();
 
-  // ✅ dependências correctas
-  const activeItem = useMemo(
-    () => musics.find(f => f.path === activeId) ?? null,
-    [musics, activeId]
-  );
+  const [search, setSearch] = useState("")
 
+  const filteredMusics = useMemo(() => {
+    const fmt = search.toLowerCase()
+    return musics.filter(music => music.title?.toLowerCase().includes(fmt) || music.path.toLowerCase().includes(fmt))
+  }, [search])
 
-  return (
-    <LayoutGroup id="music-cards">
-      <p>{musics.length}</p>
-      <div
-        ref={gridRef}
-        className="flex flex-wrap w-full grow h-full overflow-auto justify-center items-center gap-3"
-      >
-        {musics.map(file => (
-          <MusicItem
-            key={file.path}
-            data={file}
-            collapseOffset={collapseOffsets[file.path]}
-          />
-        ))}
-      </div>
+  return <motion.div
+    className="grid grid-cols-5 p-8 place-content-center  gap-8  overflow-auto grow"
+  >
 
-      <AnimatePresence>
-        {activeId !== null && (
-          <>
-            {/* backdrop */}
-            <motion.div
-              className="fixed inset-0 z-40 bg-white"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => toggle(null)}
-            />
-
-            {/* ✅ card expandido com o MESMO layoutId que o thumbnail */}
-            {activeItem && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-                <MusicItem
-                  data={activeItem}
-                  expanded
-                  // pointer-events no wrapper, não no card
-                  className="pointer-events-auto"
-                />
-              </div>
-            )}
-          </>
-        )}
-      </AnimatePresence>
-    </LayoutGroup>
-  );
+    <header className="col-span-full">
+      <Input value={search} onChange={e => setSearch(e.target.value)} />
+    </header>
+    <AnimatePresence mode="wait">
+      {(search ? filteredMusics : musics).map(file => (
+        <MusicItem
+          key={file.path}
+          data={file}
+          collapseOffset={collapseOffsets[file.path]}
+        />
+      ))}
+    </AnimatePresence>
+  </motion.div>
 }
