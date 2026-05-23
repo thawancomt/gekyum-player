@@ -4,7 +4,7 @@ use tauri::{AppHandle, Emitter, State};
 
 // Estado global da aplicação
 pub struct AppState {
-    pub player: Mutex<Option<Player>>,
+    pub player: Mutex<Option<Sink>>,
     pub handle: Mutex<Option<MixerDeviceSink>>,
     pub current_music: Mutex<Option<MusicMeta>>,
     pub current_music_bytes: Mutex<Option<Vec<u8>>>,
@@ -33,9 +33,8 @@ use serde::Serialize;
 use std::collections::hash_map::DefaultHasher;
 use std::fs::{self, File};
 use std::hash::{Hash, Hasher};
-use std::io::{BufReader, Cursor};
+use std::io::{BufReader, Cursor, Sink};
 use std::path::Path;
-use std::thread;
 use walkdir::WalkDir;
 
 #[derive(Serialize, Clone)]
@@ -107,7 +106,7 @@ pub fn play(path: String, state: State<AppState>, app: AppHandle) -> Result<(), 
     // Para a música atual antes de começar outra
     let mut current_player = state.player.lock().unwrap();
     if let Some(p) = current_player.take() {
-        p.stop();
+        p.
     }
 
     let handle = DeviceSinkBuilder::open_default_sink().map_err(|e| format!("Erro: {}", e))?;

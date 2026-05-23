@@ -13,6 +13,7 @@ export default function SliderPlayer() {
       await invoke("play", { path: current?.path })
     }
     await invoke("set_music_pos", { pos: Number(target.toFixed(0)) })
+    setTimeout(() => setDragging(null), 1200)
   }
 
   return (
@@ -26,7 +27,6 @@ export default function SliderPlayer() {
         }}
         onValueCommit={async (e) => {
           await seekTrack(dragging);
-          setDragging(null)
         }}
       />
     </div>

@@ -28,6 +28,5 @@ lofty = "0.24.0"
 base64 = "0.22.1"
 file_picker = "0.4.1"
 walkdir = "2.5.0"
-rodio = "0.22.2"
+rodio = { version = "0.22.2", features = ["symphonia-all"] }
 log = "0.4.29"
-
