@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE tracks SET play_count = play_count +1, last_played_at = CURRENT_TIMESTAMP WHERE tracks.id = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "0b8d1b6fb53b0927c7f1cb0f5167d72fe3365bd8631032182b32b1d9d2533855"
+}

@@ -1,49 +1,61 @@
 import AlbumItem from "./albums/AlbumItem"
-import { motion } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 import { useAlbum } from "@/stores/useAlbum"
 import { useMemo, useRef } from "react";
+import { useMusics } from "@/stores/useMusics";
+import { AlbumScreen } from "./AlbumScreen";
 
 export default function AlbumsTab() {
-  const { albums, selectedPosition, selectedAlbum } = useAlbum()
-  const gridRef = useRef<HTMLDivElement>(null)
+       const { albums, selectedPosition, selectedAlbum } = useAlbum()
+       const { toggleMusic } = useMusics()
 
-  const zoomState = useMemo(() => {
-    if (!selectedPosition || !gridRef.current) return null
+       const gridRef = useRef<HTMLDivElement>(null)
 
-    const gridRect = gridRef.current.getBoundingClientRect()
+       const zoomState = useMemo(() => {
+              if (!selectedPosition || !gridRef.current) return null
 
-    // Origin = posição do clique relativa ao grid
-    const originX = (selectedPosition.x ?? 0) - gridRect.left
-    const originY = (selectedPosition.y ?? 0) - gridRect.top
+              const gridRect = gridRef.current.getBoundingClientRect()
 
-    // Translate para levar o ponto clicado ao centro da tela
-    const tx = gridRect.width / 2 - (selectedPosition.x ?? 0)
-    const ty = gridRect.height / 2 - (selectedPosition.y ?? 0)
+              // Origin = posição do clique relativa ao grid
+              const originX = (selectedPosition.x ?? 0) - gridRect.left
+              const originY = (selectedPosition.y ?? 0) - gridRect.top
 
-    return { originX, originY, tx, ty }
-  }, [selectedPosition])
+              // Translate para levar o ponto clicado ao centro da tela
+              const tx = gridRect.width / 2 - (selectedPosition.x ?? 0)
+              const ty = gridRect.height / 2 - (selectedPosition.y ?? 0)
 
-  return (
-    <motion.div
-      ref={gridRef}
-      className="grow grid grid-cols-6 justify-evenly gap-8 p-20 overflow-hidden "
-      exit={{ scale: 1.2, opacity: 0 }}
-      animate={{
-        y: selectedAlbum && zoomState ? zoomState.ty : 0,
-        x: selectedAlbum && zoomState ? zoomState.tx : 0,
-        scale: selectedAlbum ? 2 : 1,
-      }}
-      style={{
-        transformOrigin: zoomState
-          ? `${zoomState.originX}px ${zoomState.originY}px`
-          : "50% 50%"
-      }}
-      layoutId="albuns-tab"
-      transition={{ duration: 0.3, ease: "linear" }}
-    >
-      {Object.keys(albums || {}).map(alb => (
-        <AlbumItem name={alb} musics={albums[alb]} key={alb} />
-      ))}
-    </motion.div>
-  )
+              return { originX, originY, tx, ty }
+       }, [selectedPosition])
+
+       return (
+              <>
+                     <motion.div
+                            ref={gridRef}
+                            className=" grid grid-cols-6 justify-evenly gap-8  overflow-auto p-20 "
+                            exit={{ scale: 1.2, opacity: 0 }}
+                            animate={{
+                                   y: selectedAlbum && zoomState ? zoomState.ty : 0,
+                                   x: selectedAlbum && zoomState ? zoomState.tx : 0,
+                            }}
+                            style={{
+                                   transformOrigin: zoomState
+                                          ? `${zoomState.originX}px ${zoomState.originY}px`
+                                          : "50% 50%"
+                            }}
+                            layoutId="albuns-tab"
+                            transition={{ duration: 0.3, ease: "linear" }}
+                     >
+                            {Object.keys(albums || {}).map(alb => (
+                                   <AlbumItem name={alb} musics={albums[alb]} key={alb} />
+                            ))}
+
+                     </motion.div>
+
+                     <AnimatePresence>
+                            {
+                                   (selectedAlbum != null) && <AlbumScreen />
+                            }
+                     </AnimatePresence >
+              </>
+       )
 }

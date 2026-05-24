@@ -5,6 +5,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { usePlayer } from "@/stores/usePlayer";
+import { cn } from "@/lib/utils";
+import { usePlaylist } from "@/stores/usePlaylist";
 
 const MotionDiv = motion.div;
 const MotionButton = motion.create(Button)
@@ -18,9 +20,7 @@ interface MusicItemProps {
 
 
 export default function MusicItem({ data }: MusicItemProps) {
-
-  const { actions: { setCurrentMusic: setCurrentPlaying, toggleIsPlaying } } = usePlayer()
-
+  const { actions: { addToQueue } } = usePlaylist()
   const [isHover, setIsHover] = useState(false)
 
   const ref = useRef<HTMLDivElement>(null)
@@ -47,27 +47,12 @@ export default function MusicItem({ data }: MusicItemProps) {
       onMouseOver={() => setIsHover(true)}
       onMouseOut={() => setIsHover(false)}
       id={data.path}
-      className="bg-muted rounded-2xl flex justify-center items-center overflow-hidden relative min-h-20"
+      className={cn("flex gap-6 ")}
     >
       {data.title || nameFallback}
-      <MotionButton className="absolute"
-
-        initial={{
-          x: animationPos?.width / 2 || 0
-        }}
-
-        animate={{
-          x: isHover ? animationPos?.width / 2 - 50 : 999
-        }}
-
-        onClick={async (e) => {
-          e.stopPropagation();
-          await invoke("play", {
-            path: data.path
-          })
-          toggleIsPlaying()
-          setCurrentPlaying(data)
-        }}
+      <MotionButton
+        variant={"ghost"}
+        onClick={() => { addToQueue(data) }}
       >
         PLAY
       </MotionButton>

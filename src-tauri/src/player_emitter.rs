@@ -33,14 +33,45 @@ pub fn get_player_state(state: State<AppState>) -> PlayerState {
 }
 
 pub fn start_position_emitter(app_handle: tauri::AppHandle) {
-    thread::spawn(move || loop {
+    thread::spawn(move || {
         thread::sleep(Duration::from_secs(1));
-        let state = app_handle.state::<AppState>();
-        let player = state.player.lock().unwrap();
+        loop {
+            thread::sleep(Duration::from_millis(500));
+            let state = app_handle.state::<AppState>();
+            let player = state.player.lock().unwrap();
+            if let Some(p) = player.as_ref() {
+                if p.empty() {
+                    return;
+                }
+                let pos = p.get_pos().as_secs();
+                let _ = app_handle.emit("position_update", pos);
+            }
+        }
+    });
+}
 
-        if let Some(p) = player.as_ref() {
-            let pos = p.get_pos().as_secs();
-            let _ = app_handle.emit("position_update", pos);
+pub fn start_end_track_emitter(app_handle: tauri::AppHandle) {
+    thread::spawn(move || {
+        thread::sleep(Duration::from_secs(1));
+        loop {
+            thread::sleep(Duration::from_millis(200));
+            let state = app_handle.state::<AppState>();
+
+            let is_empty = {
+                let player_guard = state.player.lock().unwrap();
+                player_guard.as_ref().map(|p| p.empty()).unwrap_or(false)
+            };
+
+            if is_empty {
+                let mut current_music_guard = state.current_music.lock().unwrap();
+                let mut current_music_bytes_guard = state.current_music_bytes.lock().unwrap();
+
+                if current_music_guard.is_some() {
+                    *current_music_guard = None;
+                    *current_music_bytes_guard = None;
+                    let _ = app_handle.emit("track_ended", true);
+                }
+            }
         }
     });
 }

@@ -30,3 +30,8 @@ file_picker = "0.4.1"
 walkdir = "2.5.0"
 rodio = { version = "0.22.2", features = ["symphonia-all"] }
 log = "0.4.29"
+chrono = "0.4.44"
+sqlx = { version = "0.9.0", features = ["sqlite", "runtime-tokio", "chrono", "migrate"] }
+tokio = { version = "1.52.3", features = ["full"] }
+dotenvy = "0.15.7"
+futures = "0.3.32"

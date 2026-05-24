@@ -1,6 +1,7 @@
 type Events = {
 	position_update: number;
 	play_state_change: boolean;
+	track_ended: true
 };
 
 type Callback<T> = (data: T) => void;
