@@ -199,7 +199,7 @@ pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>,
         }
     }
     hydrate_database(&pool, tracks.clone()).await;
-    let _ = app_handle.emit("new_tracks_found", true);
+    let _ = app_handle.emit("new_tracks_found", &tracks);
 
     Ok(tracks)
 }

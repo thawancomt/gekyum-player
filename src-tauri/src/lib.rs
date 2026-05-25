@@ -91,11 +91,9 @@ pub fn run() {
                 let app_handle = window.app_handle();
                 let state = app_handle.state::<AppState>();
 
-                // Fecha o pool do SQLx de forma síncrona/bloqueante antes do app morrer
+                // Close the sqlx pool
                 tauri::async_runtime::block_on(async {
-                    println!("Fechando conexões do banco de dados...");
                     state.pool.close().await;
-                    println!("Banco de dados fechado com sucesso!");
                 });
             }
         })
