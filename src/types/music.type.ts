@@ -4,5 +4,6 @@ export interface MusicMeta {
 	title: string | null;
 	artist_name: string | null;
 	album_name: string | null;
-	duration_secs: number | null;
+	duration: number | null;
+	liked: number
 }

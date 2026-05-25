@@ -73,15 +73,17 @@ export function AlbumScreen() {
                                                  </motion.div>
                                           }
                                    </AnimatePresence>
-                                   <div className="flex  justify-center bg-white z-10">
+                                   <motion.div
 
-                                          <h1 className="font-semibold text-2xl">{selectedAlbum}</h1>
+                                          className="flex  justify-center bg-white z-10">
+
+                                          <motion.h1 layoutId={`album-${selectedAlbum}`} className="font-semibold text-2xl">{selectedAlbum}</motion.h1>
                                           <Button variant={"ghost"}
                                                  onClick={async () => postQueue()}
                                           >
                                                  <Play />
                                           </Button>
-                                   </div>
+                                   </motion.div>
                             </header>
 
                             {

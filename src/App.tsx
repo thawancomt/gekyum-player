@@ -13,6 +13,7 @@ import PlayerFooter from "./components/layout/PlayerFooter";
 import { Button } from "./components/ui/button";
 import { invoke } from "@tauri-apps/api/core";
 import { MusicMeta } from "./types/music.type";
+import LikedTab from "./components/LikeTab";
 
 const DEFAULT_PATH = "/home/thawancomt/Music/";
 
@@ -25,7 +26,7 @@ export async function initPlayerState() {
               PlayerEvent.emit("play_state_change", event.payload as boolean);
        });
 
-       await listen("track_ended", (event) => {
+       await listen("track_ended", () => {
               PlayerEvent.emit("track_ended", true);
        });
 
@@ -47,18 +48,14 @@ function App() {
        return (
               <TooltipProvider>
                      <main className="h-screen w-screen overflow-hidden flex flex-col   ">
-                            <Button
-                                   onClick={async () => {
-                                          const v = await invoke("auto_search_musics");
-                                          console.log(v);
-                                   }}
-                            ></Button>
+
                             <NavBar />
-                            {currentTab == "musics" && <MusicTab searchPath={DEFAULT_PATH} />}
-                            <div className="flex grow relative">
+                            <div className="flex w-full h-full relative">
                                    <AnimatePresence mode="wait">
+                                          {currentTab == "musics" && <MusicTab searchPath={DEFAULT_PATH} />}
                                           {currentTab == "albums" && <AlbumsTab key={"albums"} />}
                                           {currentTab == "discover" && <DiscoverTab key={"discover"} />}
+                                          {currentTab == "liked" && <LikedTab key={"liked"} />}
                                    </AnimatePresence>
                             </div>
                             <SideBar />

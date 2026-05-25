@@ -1,17 +1,28 @@
-import { invoke } from "@tauri-apps/api/core";
 import { Slider } from "../ui/slider";
 import { usePlayer } from "@/stores/usePlayer";
 import { useEffect, useState } from "react";
+import { Button } from "../ui/button";
+import { ArrowLeft, ArrowRight, Pause } from "lucide-react";
+import { usePlaylist } from "@/stores/usePlaylist";
 
 export default function SliderPlayer() {
-       const { current, position } = usePlayer();
+       const { current, position, actions: { setPos } } = usePlayer();
        const [dragging, setDragging] = useState<number | null>(null);
        const [shouldMerge, setShouldMerge] = useState(false);
+       const { actions: { next, prev } } = usePlaylist()
 
        const seekTrack = async (target: number) => {
               setShouldMerge(true)
-              await invoke("set_music_pos", { pos: Number(target.toFixed(0)) })
+              setPos(target)
        }
+
+       const nextTrack = async () => {
+              await next()
+       }
+       const prevTrack = () => {
+              prev()
+       }
+
 
        useEffect(() => {
               if (!position) return;
@@ -33,10 +44,11 @@ export default function SliderPlayer() {
        }
 
        return (
-              <div className="relative w-full">
+              <div className="relative w-full grid gap-3 ">
                      <p className="absolute left-2 top-2">{formatDuration((dragging ? dragging : position) || 0)}</p>
+
                      <Slider
-                            max={current?.duration_secs || 100}
+                            max={current?.duration || 100}
                             value={[dragging ? dragging : position || 0]}
                             step={0.05}
                             onValueChange={e => {
@@ -45,8 +57,26 @@ export default function SliderPlayer() {
                             onValueCommit={async (e) => {
                                    await seekTrack(Number(e[0].toFixed(0)));
                             }}
+                            className="bg-black rounded-full"
                      />
-                     <p className="absolute right-2 top-2">{formatDuration(current?.duration_secs || 0)}</p>
+
+                     <div className="w-full flex justify-center">
+                            <Button
+                                   variant={"ghost"}
+                                   onClick={prevTrack}
+                            >
+                                   <ArrowLeft />
+                            </Button>
+                            <Button>
+                                   <Pause />
+                            </Button>
+                            <Button
+                                   variant={"ghost"}
+                                   onClick={nextTrack}
+                            ><ArrowRight /></Button>
+                     </div>
+
+                     <p className="absolute right-2 top-2">{formatDuration(current?.duration || 0)}</p>
               </div>
        );
 }

@@ -6,9 +6,12 @@ use std::str::FromStr;
 use std::sync::Mutex;
 use tauri::Manager;
 mod database;
+mod like_track;
 mod player;
 mod player_emitter;
+mod recent_tracks;
 mod scanner;
+mod track_count_manager;
 
 pub struct AppState {
     pub player: Mutex<Option<Player>>,
@@ -107,6 +110,10 @@ pub fn run() {
             player::get_music_pos,
             player::toggle_play,
             scanner::auto_search_musics,
+            recent_tracks::add_to_recent,
+            like_track::like_track,
+            track_count_manager::increase_play,
+            track_count_manager::increase_skip
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

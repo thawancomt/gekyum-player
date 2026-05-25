@@ -4,7 +4,7 @@ import { MusicMeta } from "@/types/music.type"
 import { AnimatePresence, motion } from "framer-motion"
 import { Button } from "../ui/button"
 import { useEffect, useMemo, useRef } from "react"
-import { useMusics } from "@/stores/useMusics"
+import { useTracks } from "@/stores/useMusics"
 
 interface AlbumProp {
        name: string

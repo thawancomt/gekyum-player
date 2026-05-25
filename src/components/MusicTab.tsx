@@ -4,7 +4,7 @@ import MusicItem from "./MusicItem";
 import { useEffect, useMemo, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { AnimatePresence, motion } from "framer-motion";
-import { useMusics } from "@/stores/useMusics";
+import { useTracks } from "@/stores/useMusics";
 import { useAlbum } from "@/stores/useAlbum";
 import { Input } from "./ui/input";
 
@@ -12,7 +12,7 @@ type MusicTabProps = { searchPath: string };
 
 export default function MusicTab({ searchPath }: MusicTabProps) {
        const [collapseOffsets] = useState<Record<string, { x: number; y: number }>>({});
-       const { setMusics, musics } = useMusics()
+       const { setMusics, musics } = useTracks()
        const { addAlbums } = useAlbum()
 
        const [search, setSearch] = useState("")

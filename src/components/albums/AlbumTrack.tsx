@@ -94,8 +94,8 @@ export default function AlbumTrack({ data }: MusicItemProps) {
                             </AnimatePresence>
 
                             <span>
-                                   {data.duration_secs
-                                          ? `${Math.floor(data.duration_secs / 60)}:${String(data.duration_secs % 60).padStart(2, "0")}`
+                                   {data.duration
+                                          ? `${Math.floor(data.duration / 60)}:${String(data.duration % 60).padStart(2, "0")}`
                                           : "--:--"
                                    }
                             </span>

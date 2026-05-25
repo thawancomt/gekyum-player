@@ -31,6 +31,7 @@ export default function NavBar() {
               >
                      <div className="absolute top-2 left-4 z-10 flex h-12 items-center ">
                             <Button
+                                   variant={"ghost"}
                                    className="relative flex h-12 w-4 flex-col items-center justify-center gap-1"
                                    aria-label="Menu"
                                    onClick={handleBackClick}
@@ -85,8 +86,9 @@ export default function NavBar() {
                      </div>
 
                      <div className="absolute top-2 right-4 z-10 flex h-12 items-center gap-4">
-                            {isSideBarOpen ? "T" : "F"}
-                            <Button className="flex items-center justify-center"
+                            <Button
+                                   variant={"ghost"}
+                                   className="flex items-center justify-center"
                                    onClick={toggleSideBar}
                             >
                                    <Disc3 />

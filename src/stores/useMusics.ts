@@ -4,47 +4,32 @@ import { create } from "zustand";
 import { useAlbum } from "./useAlbum";
 
 
-type currentMusic = {
-	current: MusicMeta | null
-	position: number | null
-	status: "paused" | "playing" | null
-}
 
-type currentMusicAction = {
-	setPos: (pos: number) => void;
-	setCurrent: (music: MusicMeta) => void;
+type actions = {
+	update_track: (updated_track: MusicMeta) => void;
 }
-
 type state = {
 	musics: MusicMeta[],
 	setMusics: (data: MusicMeta[]) => void;
-	selectedMusic: MusicMeta | null
-	playingMusic: MusicMeta[] | null
-	toggleMusic: (music: MusicMeta) => void;
-	currentMusicAction: currentMusicAction
-} & currentMusic
+	actions: actions
+}
 
 
 
-export const useMusics = create<state>(set => {
-	return {
-		musics: [],
-		selectedMusic: null,
-		setMusics: (data) => set({ musics: data }),
-		toggleMusic: (music) => set({ selectedMusic: music }),
-		playingMusic: null,
-		current: null,
-		position: null,
-		status: null,
-		currentMusicAction: {
-
-		}
+export const useTracks = create<state>((set, get) => ({
+	musics: [],
+	setMusics: (data) => set({ musics: data }),
+	actions: {
+		update_track(updated_track) {
+			set(prev => ({ musics: [...prev.musics.map(t => t.file_path != updated_track.file_path ? t : updated_track)] }))
+		},
 	}
-})
+}))
 
 
 PlayerEvent.on("tracks_loaded", (data) => {
-	useMusics.getState().setMusics(data);
+	useTracks.getState().setMusics(data);
+
 
 
 	let albums: Record<string, MusicMeta[]> = {}
@@ -58,6 +43,5 @@ PlayerEvent.on("tracks_loaded", (data) => {
 		albums[music.album_name].push(music)
 	})
 
-	console.log(data)
 	useAlbum.getState().addAlbums(albums)
 })

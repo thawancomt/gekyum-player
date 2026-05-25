@@ -45,7 +45,7 @@ pub fn start_position_emitter(app_handle: tauri::AppHandle) {
             let player = state.player.lock().unwrap();
             if let Some(p) = player.as_ref() {
                 if p.empty() || p.is_paused() {
-                    return;
+                    continue;
                 }
                 let pos = p.get_pos().as_secs();
                 let _ = app_handle.emit("position_update", pos);

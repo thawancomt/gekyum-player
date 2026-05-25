@@ -1,13 +1,11 @@
 import AlbumItem from "./albums/AlbumItem"
 import { AnimatePresence, motion } from "framer-motion"
 import { useAlbum } from "@/stores/useAlbum"
-import { useMemo, useRef } from "react";
-import { useMusics } from "@/stores/useMusics";
+import { Activity, useMemo, useRef, useState } from "react";
 import { AlbumScreen } from "./AlbumScreen";
 
 export default function AlbumsTab() {
        const { albums, selectedPosition, selectedAlbum } = useAlbum()
-       const { toggleMusic } = useMusics()
 
        const gridRef = useRef<HTMLDivElement>(null)
 
@@ -27,34 +25,51 @@ export default function AlbumsTab() {
               return { originX, originY, tx, ty }
        }, [selectedPosition])
 
+
+       const [show, setShow] = useState(false)
+
+       setTimeout(() => {
+              setShow(true)
+       }, 100)
+
        return (
               <>
-                     <motion.div
-                            ref={gridRef}
-                            className=" grid grid-cols-6 justify-evenly gap-8  overflow-auto p-20 "
-                            exit={{ scale: 1.2, opacity: 0 }}
-                            animate={{
-                                   y: selectedAlbum && zoomState ? zoomState.ty : 0,
-                                   x: selectedAlbum && zoomState ? zoomState.tx : 0,
-                            }}
-                            style={{
-                                   transformOrigin: zoomState
-                                          ? `${zoomState.originX}px ${zoomState.originY}px`
-                                          : "50% 50%"
-                            }}
-                            layoutId="albuns-tab"
-                            transition={{ duration: 0.3, ease: "linear" }}
-                     >
-                            {Object.keys(albums || {}).map(alb => (
-                                   <AlbumItem name={alb} musics={albums[alb]} key={alb} />
-                            ))}
-
-                     </motion.div>
 
                      <AnimatePresence>
-                            {
-                                   (selectedAlbum != null) && <AlbumScreen />
-                            }
+                            <Activity mode={show ? "visible" : "hidden"} >
+                                   <motion.div
+                                          ref={gridRef}
+                                          className=" grid grid-cols-6 justify-evenly gap-8  overflow-auto p-20 "
+                                          initial={{
+                                                 scale: 0.8,
+                                          }}
+                                          exit={{ scale: 1.2, opacity: 0 }}
+                                          animate={{
+                                                 scale: 1,
+                                                 y: selectedAlbum && zoomState ? zoomState.ty : 0,
+                                                 x: selectedAlbum && zoomState ? zoomState.tx : 0,
+                                          }}
+                                          style={{
+                                                 transformOrigin: zoomState
+                                                        ? `${zoomState.originX}px ${zoomState.originY}px`
+                                                        : "50% 50%"
+                                          }}
+                                          layoutId="albuns-tab"
+                                          transition={{ duration: 0.3, ease: "linear" }}
+                                   >
+                                          {Object.keys(albums || {}).map(alb => (
+                                                 <motion.div layoutId={`album-${alb}`} key={alb}>
+                                                        <AlbumItem name={alb} musics={albums[alb]} key={alb} />
+                                                 </motion.div>
+                                          ))}
+
+                                   </motion.div>
+
+                                   {
+                                          (selectedAlbum != null) &&
+                                          <AlbumScreen />
+                                   }
+                            </Activity>
                      </AnimatePresence >
               </>
        )

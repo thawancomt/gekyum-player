@@ -79,28 +79,7 @@ export default function SideBar() {
                                                         <ArrowRight />
                                                  </Button>
 
-                                                 <Popover>
-                                                        <PopoverTrigger asChild>
-                                                               <Volume className="absolute left-0 top-1/2 -translate-y-1/2" />
-                                                        </PopoverTrigger>
-                                                        <PopoverContent
-                                                               className="bg-muted-foreground w-fit z-9999"
-                                                               side="top"
-                                                        >
-                                                               <Slider
-                                                                      orientation="vertical"
-                                                                      min={0}
-                                                                      max={100}
-                                                                      value={[volume]}
-                                                                      onValueChange={async (v) => {
-                                                                             setVolume(v[0]);
-                                                                             await invoke("set_volume", {
-                                                                                    level: Number(v[0] / 100),
-                                                                             });
-                                                                      }}
-                                                               />
-                                                        </PopoverContent>
-                                                 </Popover>
+
                                           </section>
                                    </div>
                             </footer>
