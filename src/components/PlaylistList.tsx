@@ -33,7 +33,7 @@ export default function PlaylistList() {
                                                  ease: "easeInOut"
                                           }}
                                    >
-                                          <AlbumTrack key={track.path} data={track} />
+                                          <AlbumTrack key={track.file_path} data={track} />
                                    </motion.div>
                                    )
                             }

@@ -1,8 +1,8 @@
 export interface MusicMeta {
-	path: string;
+	file_path: string;
 	track_number?: number;
 	title: string | null;
-	artist: string | null;
-	album: string | null;
+	artist_name: string | null;
+	album_name: string | null;
 	duration_secs: number | null;
 }

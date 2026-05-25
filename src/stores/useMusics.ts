@@ -1,5 +1,7 @@
+import { PlayerEvent } from "@/Events/playerEvent";
 import { MusicMeta } from "@/types/music.type";
 import { create } from "zustand";
+import { useAlbum } from "./useAlbum";
 
 
 type currentMusic = {
@@ -38,4 +40,24 @@ export const useMusics = create<state>(set => {
 
 		}
 	}
+})
+
+
+PlayerEvent.on("tracks_loaded", (data) => {
+	useMusics.getState().setMusics(data);
+
+
+	let albums: Record<string, MusicMeta[]> = {}
+
+	data.forEach(music => {
+		if (!music.album_name) return;
+
+		if (!(music.album_name in albums)) {
+			albums[music.album_name] = []
+		}
+		albums[music.album_name].push(music)
+	})
+
+	console.log(data)
+	useAlbum.getState().addAlbums(albums)
 })

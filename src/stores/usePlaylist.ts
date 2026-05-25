@@ -41,21 +41,21 @@ export const usePlaylist = create<state>((set, get) => ({
 				return;
 			}
 
-			if (!music.album) {
+			if (!music.album_name) {
 				// If the track does not belong to any album, clean the queue and play only this track
 				set(({ tracks: [music], index: 0 }))
 			}
 
-			if (music.album) {
-				const albumTracks = albums[music.album]
-				const targetMusicIndex = albumTracks.findIndex(m => m.path == music.path)
+			if (music.album_name) {
+				const albumTracks = albums[music.album_name]
+				const targetMusicIndex = albumTracks.findIndex(m => m.file_path == music.file_path)
 				set({ tracks: albumTracks, index: targetMusicIndex })
 			}
 
 			await usePlayer.getState().actions.play_track(music)
 		},
 		async removeFromQueue(music) {
-			set(prev => ({ tracks: prev.tracks.filter(m => m.path != music.path) }))
+			set(prev => ({ tracks: prev.tracks.filter(m => m.file_path != music.file_path) }))
 		},
 
 		next() {
@@ -77,8 +77,8 @@ export const usePlaylist = create<state>((set, get) => ({
 			const current = usePlayer.getState().current
 			let shuffledTracks = [...tracks].sort(() => Math.random() - 0.5)
 
-			if (current && current?.path) {
-				shuffledTracks = shuffledTracks.filter(t => t.path != current.path)
+			if (current && current?.file_path) {
+				shuffledTracks = shuffledTracks.filter(t => t.file_path != current.file_path)
 			}
 
 			set({

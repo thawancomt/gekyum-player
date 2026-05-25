@@ -1,7 +1,11 @@
+import { MusicMeta } from "@/types/music.type";
+
+
 type Events = {
 	position_update: number;
 	play_state_change: boolean;
-	track_ended: true
+	track_ended: true,
+	tracks_loaded: MusicMeta[];
 };
 
 type Callback<T> = (data: T) => void;

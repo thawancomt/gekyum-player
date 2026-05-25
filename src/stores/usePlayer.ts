@@ -39,7 +39,7 @@ export const usePlayer = create<State>((set, get) => ({
 
 			// CALL RUST BACKEND TO PLAY MUSIC
 			await invoke("play", {
-				path: track.path
+				path: track.file_path
 			})
 
 			set({ current: track, is_playing: true })

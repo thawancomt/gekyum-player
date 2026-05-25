@@ -19,19 +19,19 @@ export default function AlbumTrack({ data }: MusicItemProps) {
 
        // Fallback Yeezy: Se não tem tag, mostra o arquivo de forma limpa, tudo em caixa baixa (lowercase)
        const nameFallback = useMemo(() => {
-              const segments = data.path.split("/");
+              const segments = data.file_path.split("/");
               const fileName = segments[segments.length - 1];
               return fileName.replace(/\.[^/.]+$/, "").toLowerCase();
        }, [data]);
 
-       const isCurrentTrack = current?.path === data.path;
+       const isCurrentTrack = current?.file_path === data.file_path;
        const isThisTrackPlaying = isCurrentTrack && is_playing;
 
        // Formata o index com zero à esquerda (ex: 01, 02) - estética puramente funcional
        const formattedIndex = String(data.track_number || 1).padStart(2, "0");
 
        const titleText = (data.title || nameFallback).toLowerCase();
-       const artistText = data.artist?.toLowerCase() || "unknown";
+       const artistText = data.artist_name?.toLowerCase() || "unknown";
 
        return (
               <motion.div

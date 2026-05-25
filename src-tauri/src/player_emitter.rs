@@ -3,11 +3,14 @@ use std::thread;
 use std::time::Duration;
 use tauri::{Emitter, Manager, State};
 
-use crate::{database::TrackEntry, AppState};
+use crate::{
+    database::{TrackEntry, TrackRead},
+    AppState,
+};
 
 #[derive(Serialize)]
 pub struct PlayerState {
-    pub current: Option<TrackEntry>,
+    pub current: Option<TrackRead>,
     pub is_paused: bool,
     pub position_secs: u64,
     pub volume: f32,
@@ -41,7 +44,7 @@ pub fn start_position_emitter(app_handle: tauri::AppHandle) {
             let state = app_handle.state::<AppState>();
             let player = state.player.lock().unwrap();
             if let Some(p) = player.as_ref() {
-                if p.empty() {
+                if p.empty() || p.is_paused() {
                     return;
                 }
                 let pos = p.get_pos().as_secs();

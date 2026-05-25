@@ -18,7 +18,7 @@ export function AlbumScreen() {
               await addAlbumToQueue(albums[selectedAlbum || ""] || [])
        }
 
-       const isThisAlbumPlaying = is_playing && currentTrack?.album == selectedAlbum
+       const isThisAlbumPlaying = is_playing && currentTrack?.album_name == selectedAlbum
 
        return (
               <motion.section

@@ -10,7 +10,7 @@ export default function PlayerFooter() {
        const { actions: { shuffle } } = usePlaylist()
 
        const isShuffled = true;
-       const hasArtirts = current && current.artist
+       const hasArtirts = current && current.artist_name
 
        const handleShuffle = () => {
               shuffle();
@@ -32,7 +32,7 @@ export default function PlayerFooter() {
                                                  </h1>
                                                  {
                                                         hasArtirts &&
-                                                        <h2>{current.artist}</h2>
+                                                        <h2>{current.artist_name}</h2>
                                                  }
                                           </header>
 

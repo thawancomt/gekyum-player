@@ -24,10 +24,8 @@ pub struct TrackEntry {
     pub last_played_at: Option<DateTime<Utc>>,
     /* FILE INFO */
     pub mime_type: Option<String>,
-
-    /* Hydration */
-    album_name: Option<String>,
-    artist_name: Option<String>,
+    pub album_name: Option<String>,
+    pub artist_name: Option<String>,
 }
 
 #[derive(Debug, Clone, FromRow, PartialEq, Eq, Hash, Serialize)]
@@ -70,6 +68,48 @@ pub struct ArtistEntry {
 pub struct LastQueue {
     index: u32,
     tracks: Vec<String>,
+}
+
+pub fn track_entry_from_read(
+    track: TrackRead,
+    album_id: Option<u32>,
+    artist_id: Option<u32>,
+) -> TrackEntry {
+    let TrackRead {
+        file_path,
+        cover_path,
+        title,
+        total_played_sec,
+        year,
+        liked,
+        track_number,
+        play_count,
+        skip_count,
+        last_played_at,
+        mime_type,
+        album_name,
+        artist_name,
+        ..
+    } = track;
+
+    TrackEntry {
+        id: None,
+        file_path,
+        cover_path,
+        title,
+        album_id,
+        total_played_sec,
+        artist_id,
+        year,
+        liked,
+        track_number,
+        play_count,
+        skip_count,
+        last_played_at,
+        mime_type,
+        album_name,
+        artist_name,
+    }
 }
 
 pub async fn insert_track(pool: &sqlx::SqlitePool, track: TrackEntry) -> Result<(), sqlx::Error> {

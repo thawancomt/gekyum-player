@@ -22,10 +22,7 @@ pub async fn _load_music_as_source(
     let source = Decoder::try_from(cursor).map_err(|e| format!("Erro: {}", e))?;
 
     let file_path = Path::new(&path);
-    let music_data = match get_track_data(file_path).await {
-        Ok(v) => v,
-        Err(e) => None,
-    };
+    let music_data = get_track_data(file_path).await.ok();
 
     if let Some(music_data) = music_data {
         return Ok((source, bytes, music_data));
@@ -94,7 +91,7 @@ pub async fn play(
 ) -> Result<bool, String> {
     _ensure_player(&state)?;
     let pool = state.pool.clone();
-    let (source, bytes, music_data) = _load_music_as_source(path, &pool).await?;
+    let (source, bytes, music_data) = _load_music_as_source(path).await?;
 
     let current_player = state.player.lock().unwrap();
 
