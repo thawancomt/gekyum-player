@@ -64,6 +64,8 @@ pub fn run() {
     });
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_notification::init())
         // 2. Registra o estado aqui UMA ÚNICA VEZ
         .manage(AppState::new(pool))
         .setup(|app| {

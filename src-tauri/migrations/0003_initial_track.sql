@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS tracks (
        total_played_sec INTEGER NOT NULL DEFAULT 0,
        last_played_at TEXT,
        mime_type TEXT,
+       duration INTEGER,
 
        FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE SET NULL,
        FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE SET NULL

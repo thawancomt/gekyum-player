@@ -1,4 +1,5 @@
 use sqlx::SqlitePool;
+use std::path::PathBuf;
 use std::{collections::HashSet, path::Path};
 use tauri::{AppHandle, State};
 use tauri::{Emitter, Manager};
@@ -82,6 +83,30 @@ async fn hydrate_database(pool: &SqlitePool, tracks_from_disk: Vec<TrackRead>) {
         let _ = insert_track(pool, entry).await;
     }
 }
+
+fn emit_loaded_tracks(app_handle: &AppHandle, tracks: &Vec<TrackRead>) {
+    let emit = app_handle.emit("tracks_loaded", tracks);
+}
+
+fn get_tracks_paths(excluded_paths: HashSet<PathBuf>) -> HashSet<PathBuf> {
+    let audio_dir = dirs::audio_dir().map(|p| p.to_string_lossy().to_string());
+    WalkDir::new(Path::new(
+        &audio_dir.unwrap_or_else(|| "./home/".to_string()),
+    ))
+    .into_iter()
+    .filter_map(|dir| dir.ok())
+    .filter(|file| file.path().is_file())
+    .filter(|file| !excluded_paths.contains(file.path())) // IGNORE KNOWED TRACKS
+    .filter(|file| {
+        if let Some(ext) = file.path().extension().and_then(|ext| ext.to_str()) {
+            return matches!(ext, "mp3" | "m4a" | "flac" | "wav");
+        }
+        false
+    })
+    .map(|e| e.path().to_path_buf())
+    .collect()
+}
+
 #[tauri::command]
 pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>, String> {
     /* THIS FUNCITON IS THE CORE OF MUSIC FINDER */
@@ -94,9 +119,7 @@ pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>,
     let app_state = app_handle.state::<AppState>();
     let pool = app_state.pool.clone();
 
-    let audio_dir = dirs::audio_dir().map(|p| p.to_string_lossy().to_string());
-
-    let db_tracks = sqlx::query_as::<_, TrackEntry>(
+    let db_tracks = sqlx::query_as::<_, TrackRead>(
         r#"
         SELECT
             t.id,
@@ -113,8 +136,9 @@ pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>,
             t.mime_type,
             t.album_id,
             t.artist_id,
-            a.name AS album_name,      -- ← alias importante
-            ar.name AS artist_name     -- ← alias importante
+            t.duration,
+            a.name AS album_name,
+            ar.name AS artist_name
         FROM tracks t
         LEFT JOIN albums a ON t.album_id = a.id
         LEFT JOIN artists ar ON t.artist_id = ar.id
@@ -132,55 +156,28 @@ pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>,
 
     let missing_tracks = get_missing_tracks(&db_tracks_as_paths).await;
 
+    let tracks_to_emit: Vec<TrackRead> = db_tracks
+        .iter()
+        .filter(|e| !missing_tracks.contains(&e.file_path))
+        .cloned()
+        .collect();
+
+    emit_loaded_tracks(&app_handle, &tracks_to_emit);
+
     let _ = drop_missing_tracks(&pool, &missing_tracks).await;
 
-    let existent_tracks = db_tracks_as_paths
-        .difference(&missing_tracks)
-        .cloned()
-        .collect::<Vec<_>>();
-
-    let track_read_existent_tracks = db_tracks
+    // PHASE 2
+    // SEARCH ALL MUSIC DIR LOOKING FOR NEW MUSICS
+    //
+    let excludede_paths: HashSet<PathBuf> = tracks_to_emit
         .into_iter()
-        .filter(|track| existent_tracks.contains(&track.file_path))
-        .map(|track| TrackRead {
-            file_path: track.file_path,
-            title: track.title,
-            artist_name: track.artist_name, // You can fetch artist and album names if needed
-            album_name: track.album_name,
-            track_number: track.track_number,
-            total_played_sec: track.total_played_sec,
-            cover_path: track.cover_path,
-            last_played_at: track.last_played_at,
-            liked: track.liked,
-            mime_type: track.mime_type,
-            play_count: track.play_count,
-            skip_count: track.skip_count,
-            year: track.year,
-            duration: 0, // You can fetch duration if needed
-        })
-        .collect::<Vec<_>>();
+        .map(|t| PathBuf::from(&t.file_path))
+        .collect();
 
-    let _ = app_handle
-        .emit("tracks_loaded", &track_read_existent_tracks)
-        .map_err(|e| e.to_string());
+    let all_tracks_on_disk: HashSet<PathBuf> = get_tracks_paths(excludede_paths);
 
-    println!("Tracks loaded: {}", &existent_tracks.len());
-
-    let all_tracks_on_disk: Vec<_> = WalkDir::new(Path::new(
-        &audio_dir.unwrap_or_else(|| "./home/".to_string()),
-    ))
-    .into_iter()
-    .filter_map(|dir| dir.ok())
-    .filter(|file| file.path().is_file())
-    .filter(|file| {
-        if let Some(ext) = file.path().extension().and_then(|ext| ext.to_str()) {
-            return matches!(ext, "mp3" | "m4a" | "flac" | "wav");
-        }
-        false
-    })
-    .map(|e| e.path().to_path_buf())
-    .collect();
-
+    // PHASE 3 GATHER ALL NEW MUSICS AND SEND IT
+    // TO FRONT END
     let mut tracks: Vec<TrackRead> = Vec::new();
 
     for file_path in all_tracks_on_disk {

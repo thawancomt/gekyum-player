@@ -59,7 +59,7 @@ pub async fn get_track_data(path: &Path) -> Result<TrackRead, String> {
         Err(_) => return Err("Errow while reading file".to_string()),
     };
 
-    let duration = tagged.properties().duration().as_secs();
+    let duration = tagged.properties().duration().as_secs().cast_signed();
     let tag = tagged
         .primary_tag()
         .or_else(|| tagged.first_tag())

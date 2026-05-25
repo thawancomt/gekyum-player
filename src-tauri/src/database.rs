@@ -26,6 +26,7 @@ pub struct TrackEntry {
     pub mime_type: Option<String>,
     pub album_name: Option<String>,
     pub artist_name: Option<String>,
+    pub duration: i64,
 }
 
 #[derive(Debug, Clone, FromRow, PartialEq, Eq, Hash, Serialize)]
@@ -45,7 +46,7 @@ pub struct TrackRead {
     pub last_played_at: Option<DateTime<Utc>>,
     /* FILE INFO */
     pub mime_type: Option<String>,
-    pub duration: u64,
+    pub duration: i64,
 
     /* Hydration */
     pub album_name: Option<String>,
@@ -89,6 +90,7 @@ pub fn track_entry_from_read(
         mime_type,
         album_name,
         artist_name,
+        duration,
         ..
     } = track;
 
@@ -109,6 +111,7 @@ pub fn track_entry_from_read(
         mime_type,
         album_name,
         artist_name,
+        duration,
     }
 }
 
@@ -126,6 +129,7 @@ pub async fn insert_track(pool: &sqlx::SqlitePool, track: TrackEntry) -> Result<
         skip_count,
         last_played_at,
         mime_type,
+        duration,
         ..
     } = track;
 
@@ -144,9 +148,9 @@ pub async fn insert_track(pool: &sqlx::SqlitePool, track: TrackEntry) -> Result<
             skip_count,
             total_played_sec,
             last_played_at,
-            mime_type
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-
+            mime_type,
+            duration
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
          ON CONFLICT (file_path) DO NOTHING;
         "#,
         file_path,
@@ -161,7 +165,8 @@ pub async fn insert_track(pool: &sqlx::SqlitePool, track: TrackEntry) -> Result<
         skip_count,
         0,
         last_played_at,
-        mime_type
+        mime_type,
+        duration
     )
     .execute(pool)
     .await?;
