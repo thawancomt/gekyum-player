@@ -1,4 +1,6 @@
 CREATE TABLE IF NOT EXISTS albums (
        id INTEGER PRIMARY KEY AUTOINCREMENT,
-       name TEXT
+       name TEXT UNIQUE NOT NULL
 );
+
+CREATE INDEX idx_album_name ON albums(name);

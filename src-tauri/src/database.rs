@@ -1,11 +1,12 @@
 use chrono::{DateTime, Utc};
+use serde::Serialize;
 use sqlx;
 use sqlx::FromRow;
 
-#[derive(Debug, Clone, FromRow)]
+#[derive(Debug, Clone, FromRow, PartialEq, Eq, Hash, Serialize)]
 pub struct TrackEntry {
     /* PRIMARY KEY */
-    pub id: Option<u32>,
+    pub id: Option<i64>,
     /* PATHS */
     pub file_path: String,
     pub cover_path: Option<String>,
@@ -23,17 +24,48 @@ pub struct TrackEntry {
     pub last_played_at: Option<DateTime<Utc>>,
     /* FILE INFO */
     pub mime_type: Option<String>,
+
+    /* Hydration */
+    album_name: Option<String>,
+    artist_name: Option<String>,
 }
+
+#[derive(Debug, Clone, FromRow, PartialEq, Eq, Hash, Serialize)]
+pub struct TrackRead {
+    /* PATHS */
+    pub file_path: String,
+    pub cover_path: Option<String>,
+    /* METADATA */
+    pub title: Option<String>,
+    pub total_played_sec: u32,
+    pub year: Option<i32>,
+    pub liked: u32,
+    pub track_number: Option<u32>,
+    /* STATS */
+    pub play_count: u32,
+    pub skip_count: u32,
+    pub last_played_at: Option<DateTime<Utc>>,
+    /* FILE INFO */
+    pub mime_type: Option<String>,
+    pub duration: u64,
+
+    /* Hydration */
+    pub album_name: Option<String>,
+    pub artist_name: Option<String>,
+}
+
 #[derive(Debug, Clone, FromRow)]
 pub struct AlbumEntry {
-    pub id: Option<u32>,
+    pub id: Option<i64>,
     pub name: String,
 }
+
 #[derive(Debug, Clone, FromRow)]
 pub struct ArtistEntry {
-    pub id: Option<u32>,
+    pub id: Option<i64>,
     pub name: String,
 }
+
 #[derive(Debug, Clone, FromRow)]
 pub struct LastQueue {
     index: u32,
@@ -87,7 +119,7 @@ pub async fn insert_track(pool: &sqlx::SqlitePool, track: TrackEntry) -> Result<
         track_number,
         play_count,
         skip_count,
-        0, // total_played_sec inicial
+        0,
         last_played_at,
         mime_type
     )
@@ -97,25 +129,28 @@ pub async fn insert_track(pool: &sqlx::SqlitePool, track: TrackEntry) -> Result<
     Ok(())
 }
 
-pub async fn delete_track(pool: &sqlx::SqlitePool, track_id: u32) -> Result<(), sqlx::Error> {
+pub async fn delete_track(pool: &sqlx::SqlitePool, file_path: String) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"
-            DELETE FROM tracks WHERE id = ?
+            DELETE FROM tracks WHERE file_path = ?
         "#,
-        track_id
+        file_path
     )
     .execute(pool)
     .await?;
 
     Ok(())
 }
+
 pub async fn insert_album(pool: &sqlx::SqlitePool, album: AlbumEntry) -> Result<(), sqlx::Error> {
     let AlbumEntry { name, id } = album;
 
-    sqlx::query!("INSERT INTO albums (name) VALUES (?)", name,)
-        .execute(pool)
-        .await?;
-
+    sqlx::query!(
+        "INSERT INTO albums (name) VALUES (?) ON CONFLICT DO NOTHING",
+        name,
+    )
+    .execute(pool)
+    .await?;
     Ok(())
 }
 
@@ -140,9 +175,12 @@ pub async fn insert_artist(
 ) -> Result<(), sqlx::Error> {
     let ArtistEntry { name, .. } = artist;
 
-    sqlx::query!("INSERT INTO artists (name) VALUES (?)", name)
-        .execute(pool)
-        .await?;
+    sqlx::query!(
+        "INSERT INTO artists (name) VALUES (?) ON CONFLICT DO NOTHING",
+        name
+    )
+    .execute(pool)
+    .await?;
 
     Ok(())
 }
@@ -166,4 +204,27 @@ pub async fn increment_play_count(
     ).execute(pool).await?;
 
     Ok(())
+}
+
+/* ALBUMS METHODS */
+pub async fn get_album_by_name(
+    pool: &sqlx::SqlitePool,
+    name: &str,
+) -> Result<AlbumEntry, sqlx::Error> {
+    let album = sqlx::query_as!(AlbumEntry, "SELECT * FROM albums where name = ?", name)
+        .fetch_optional(pool)
+        .await?;
+
+    album.ok_or_else(|| sqlx::Error::RowNotFound)
+}
+
+pub async fn get_artist_by_name(
+    pool: &sqlx::SqlitePool,
+    name: &str,
+) -> Result<ArtistEntry, sqlx::Error> {
+    let Artist = sqlx::query_as!(ArtistEntry, "SELECT * FROM artists where name = ?", name)
+        .fetch_optional(pool)
+        .await?;
+
+    Artist.ok_or_else(|| sqlx::Error::RowNotFound)
 }

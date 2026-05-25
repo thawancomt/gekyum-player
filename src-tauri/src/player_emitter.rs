@@ -1,12 +1,13 @@
-use crate::music::{get_music_data, AppState, MusicMeta};
 use serde::Serialize;
+use std::thread;
 use std::time::Duration;
-use std::{path::Path, thread};
 use tauri::{Emitter, Manager, State};
+
+use crate::{database::TrackEntry, AppState};
 
 #[derive(Serialize)]
 pub struct PlayerState {
-    pub current: Option<MusicMeta>,
+    pub current: Option<TrackEntry>,
     pub is_paused: bool,
     pub position_secs: u64,
     pub volume: f32,
