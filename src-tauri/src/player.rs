@@ -2,14 +2,13 @@ use lofty::file::{AudioFile, TaggedFileExt};
 use lofty::read_from_path;
 use lofty::tag::Accessor;
 use rodio::{Decoder, DeviceSinkBuilder, Player};
-use sqlx::SqlitePool;
 use std::fs;
 use std::io::Cursor;
 use std::path::Path;
 use std::time::Duration;
 use tauri::{AppHandle, Emitter, State};
 
-use crate::database::{TrackEntry, TrackRead};
+use crate::database::TrackRead;
 use crate::AppState;
 
 pub async fn _load_music_as_source(
@@ -90,7 +89,6 @@ pub async fn play(
     app: AppHandle,
 ) -> Result<bool, String> {
     _ensure_player(&state)?;
-    let pool = state.pool.clone();
     let (source, bytes, music_data) = _load_music_as_source(path).await?;
 
     let current_player = state.player.lock().unwrap();

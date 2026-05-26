@@ -30,7 +30,7 @@ export const usePlayer = create<State>((set, get) => ({
 	current: null,
 	position: null,
 	is_playing: false,
-	volume: 1,
+	volume: 100,
 	actions: {
 		async setCurrentMusic(music) {
 			set({ current: music });

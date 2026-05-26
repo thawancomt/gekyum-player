@@ -1,7 +1,7 @@
 use sqlx::SqlitePool;
 use std::path::PathBuf;
 use std::{collections::HashSet, path::Path};
-use tauri::{AppHandle, State};
+use tauri::AppHandle;
 use tauri::{Emitter, Manager};
 use walkdir::WalkDir;
 
@@ -10,7 +10,7 @@ use crate::database::{
     track_entry_from_read, AlbumEntry, ArtistEntry, TrackRead,
 };
 use crate::player::get_track_data;
-use crate::{database::TrackEntry, AppState};
+use crate::AppState;
 
 async fn get_missing_tracks(db_tracks: &HashSet<String>) -> HashSet<String> {
     /* Return tracks that exists on database but no  on disk */
@@ -23,7 +23,7 @@ async fn get_missing_tracks(db_tracks: &HashSet<String>) -> HashSet<String> {
 
 async fn handle_album(pool: &SqlitePool, album_name: &str) {
     match get_album_by_name(pool, album_name).await {
-        Ok(album) => {}
+        Ok(_) => {}
         Err(_) => {
             insert_album(
                 pool,
@@ -39,7 +39,7 @@ async fn handle_album(pool: &SqlitePool, album_name: &str) {
 
 async fn handle_artist(pool: &SqlitePool, artist_name: &str) {
     match get_artist_by_name(pool, artist_name).await {
-        Ok(artist_name) => {}
+        Ok(_) => {}
         Err(_) => {
             insert_artist(
                 pool,
@@ -85,7 +85,7 @@ async fn hydrate_database(pool: &SqlitePool, tracks_from_disk: Vec<TrackRead>) {
 }
 
 fn emit_loaded_tracks(app_handle: &AppHandle, tracks: &Vec<TrackRead>) {
-    let emit = app_handle.emit("tracks_loaded", tracks);
+    app_handle.emit("tracks_loaded", tracks);
 }
 
 fn get_tracks_paths(excluded_paths: HashSet<PathBuf>) -> HashSet<PathBuf> {

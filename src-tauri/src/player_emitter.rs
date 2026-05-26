@@ -3,10 +3,7 @@ use std::thread;
 use std::time::Duration;
 use tauri::{Emitter, Manager, State};
 
-use crate::{
-    database::{TrackEntry, TrackRead},
-    AppState,
-};
+use crate::{database::TrackRead, AppState};
 
 #[derive(Serialize)]
 pub struct PlayerState {

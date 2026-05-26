@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight, Pause } from "lucide-react";
 import { usePlaylist } from "@/stores/usePlaylist";
 
 export default function SliderPlayer() {
-       const { current, position, actions: { setPos } } = usePlayer();
+       const { current, position, actions: { setPos, toggleIsPlaying } } = usePlayer();
        const [dragging, setDragging] = useState<number | null>(null);
        const [shouldMerge, setShouldMerge] = useState(false);
        const { actions: { next, prev } } = usePlaylist()
@@ -21,6 +21,10 @@ export default function SliderPlayer() {
        }
        const prevTrack = () => {
               prev()
+       }
+
+       const togglePlay = async () => {
+              await toggleIsPlaying()
        }
 
 
@@ -67,7 +71,9 @@ export default function SliderPlayer() {
                             >
                                    <ArrowLeft />
                             </Button>
-                            <Button>
+                            <Button
+                                   onClick={togglePlay}
+                            >
                                    <Pause />
                             </Button>
                             <Button

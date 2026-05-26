@@ -39,42 +39,48 @@ impl AppState {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // 1. Conecta no banco UMA ÚNICA VEZ antes de iniciar o app
-    let pool = tauri::async_runtime::block_on(async {
-        dotenvy::dotenv().ok();
-
-        let database_url =
-            std::env::var("DATABASE_URL").expect("DATABASE_URL SHOULD BE ON ENV FILE.");
-
-        // Configuração melhor do SQLite (resolve o problema do WAL)
-        let options = sqlx::sqlite::SqliteConnectOptions::from_str(&database_url)
-            .expect("URL invalid")
-            .create_if_missing(true)
-            .journal_mode(sqlx::sqlite::SqliteJournalMode::Wal)
-            .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
-            .busy_timeout(std::time::Duration::from_secs(10));
-
-        let pool = sqlx::SqlitePool::connect_with(options)
-            .await
-            .expect("An error occurred while connecting with database");
-
-        sqlx::migrate!("./migrations")
-            .run(&pool)
-            .await
-            .expect("Error on migrations");
-
-        pool
-    });
-
     tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_notification::init())
-        // 2. Registra o estado aqui UMA ÚNICA VEZ
-        .manage(AppState::new(pool))
         .setup(|app| {
+            // Initialize SQLite pool inside .setup()
+            let pool = tauri::async_runtime::block_on(async {
+                let app_data_dir = app.path().app_data_dir()
+                    .expect("Failed to get app data directory");
+
+                // Create the app data directory if it doesn't exist
+                std::fs::create_dir_all(&app_data_dir)
+                    .expect("Failed to create app data directory");
+
+                // Build database URL dynamically
+                let db_path = app_data_dir.join("database.db");
+                let database_url = format!("sqlite:{}", db_path.to_str().unwrap());
+
+                // Configure SQLite connection options
+                let options = sqlx::sqlite::SqliteConnectOptions::from_str(&database_url)
+                    .expect("URL invalid")
+                    .create_if_missing(true)
+                    .journal_mode(sqlx::sqlite::SqliteJournalMode::Wal)
+                    .synchronous(sqlx::sqlite::SqliteSynchronous::Normal)
+                    .busy_timeout(std::time::Duration::from_secs(10));
+
+                let pool = sqlx::SqlitePool::connect_with(options)
+                    .await
+                    .expect("An error occurred while connecting with database");
+
+                // Run migrations
+                sqlx::migrate!("./migrations")
+                    .run(&pool)
+                    .await
+                    .expect("Error on migrations");
+
+                pool
+            });
+
+            // Manage app state with the created pool
+            app.manage(AppState::new(pool));
+
             let app_handle = app.app_handle().clone();
-            // APAGAMOS O BLOCK_ON ANTIGO DAQUI!
-            // Agora as threads podem iniciar com segurança.
             tauri::async_runtime::spawn(async move {
                 // Pequeno delay para dar tempo do frontend carregar os listeners
                 tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
