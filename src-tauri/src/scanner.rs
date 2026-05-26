@@ -12,7 +12,7 @@ use crate::database::{
 use crate::player::get_track_data;
 use crate::AppState;
 
-async fn get_missing_tracks(db_tracks: &HashSet<String>) -> HashSet<String> {
+fn get_missing_tracks(db_tracks: &HashSet<String>) -> HashSet<String> {
     /* Return tracks that exists on database but no  on disk */
     db_tracks
         .iter()
@@ -85,10 +85,14 @@ async fn hydrate_database(pool: &SqlitePool, tracks_from_disk: Vec<TrackRead>) {
 }
 
 fn emit_loaded_tracks(app_handle: &AppHandle, tracks: &Vec<TrackRead>) {
-    app_handle.emit("tracks_loaded", tracks);
+    if let Err(e) = app_handle.emit("tracks_loaded", tracks) {
+        eprintln!("Error while emitting loaded tracks: {:?}", e);
+    }
+
+    println!("loaded tracks emitted");
 }
 
-fn get_tracks_paths(excluded_paths: HashSet<PathBuf>) -> HashSet<PathBuf> {
+fn discover_new_tracks(excluded_paths: HashSet<PathBuf>) -> HashSet<PathBuf> {
     let audio_dir = dirs::audio_dir().map(|p| p.to_string_lossy().to_string());
     WalkDir::new(Path::new(
         &audio_dir.unwrap_or_else(|| "./home/".to_string()),
@@ -96,7 +100,7 @@ fn get_tracks_paths(excluded_paths: HashSet<PathBuf>) -> HashSet<PathBuf> {
     .into_iter()
     .filter_map(|dir| dir.ok())
     .filter(|file| file.path().is_file())
-    .filter(|file| !excluded_paths.contains(file.path())) // IGNORE KNOWED TRACKS
+    .filter(|file| !excluded_paths.contains(file.path())) // IGNORE PATH WE ALREADY NOW TRACKS
     .filter(|file| {
         if let Some(ext) = file.path().extension().and_then(|ext| ext.to_str()) {
             return matches!(ext, "mp3" | "m4a" | "flac" | "wav");
@@ -147,14 +151,15 @@ pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>,
     )
     .fetch_all(&pool)
     .await
-    .expect("Failed to query database");
+    .map_err(|e| format!("Error while fetching database {}", e))?;
 
+    // To avoid compare Struc use the file_path that is unique and easier to compare
     let db_tracks_as_paths: HashSet<String> = db_tracks
         .iter()
         .map(|track| track.file_path.clone())
         .collect();
 
-    let missing_tracks = get_missing_tracks(&db_tracks_as_paths).await;
+    let missing_tracks = get_missing_tracks(&db_tracks_as_paths);
 
     let tracks_to_emit: Vec<TrackRead> = db_tracks
         .iter()
@@ -164,29 +169,23 @@ pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>,
 
     emit_loaded_tracks(&app_handle, &tracks_to_emit);
 
-    let _ = drop_missing_tracks(&pool, &missing_tracks).await;
+    drop_missing_tracks(&pool, &missing_tracks).await;
 
     // PHASE 2
     // SEARCH ALL MUSIC DIR LOOKING FOR NEW MUSICS
     //
-    let excludede_paths: HashSet<PathBuf> = tracks_to_emit
+    let paths_to_ignore: HashSet<PathBuf> = tracks_to_emit
         .into_iter()
         .map(|t| PathBuf::from(&t.file_path))
         .collect();
 
-    let all_tracks_on_disk: HashSet<PathBuf> = get_tracks_paths(excludede_paths);
+    let new_tracks_paths: HashSet<PathBuf> = discover_new_tracks(paths_to_ignore);
 
     // PHASE 3 GATHER ALL NEW MUSICS AND SEND IT
     // TO FRONT END
-    let mut tracks: Vec<TrackRead> = Vec::new();
+    let mut new_tracks: Vec<TrackRead> = Vec::new();
 
-    for file_path in all_tracks_on_disk {
-        let path_str = file_path.to_string_lossy().to_string();
-
-        if db_tracks_as_paths.contains(&path_str) {
-            continue;
-        }
-
+    for file_path in new_tracks_paths {
         if let Ok(track) = get_track_data(&file_path).await {
             if let Some(album) = &track.album_name {
                 handle_album(&pool, album).await;
@@ -195,11 +194,13 @@ pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>,
                 handle_artist(&pool, artist).await;
             };
             println!("{:?}", &track);
-            tracks.push(track.clone());
+            new_tracks.push(track);
         }
     }
-    hydrate_database(&pool, tracks.clone()).await;
-    let _ = app_handle.emit("new_tracks_found", &tracks);
+    app_handle
+        .emit("new_tracks_found", &new_tracks)
+        .map_err(|e| format!("Error while emitting new tracks {}", e))?;
 
-    Ok(tracks)
+    hydrate_database(&pool, new_tracks.clone()).await;
+    Ok(new_tracks)
 }

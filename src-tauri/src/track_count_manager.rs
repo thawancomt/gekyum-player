@@ -46,3 +46,39 @@ pub async fn increase_skip(path: String, state: State<'_, AppState>) -> Result<(
 
     Ok(())
 }
+#[tauri::command]
+pub async fn update_played_last_time(
+    path: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let pool = state.pool.clone();
+    sqlx::query!(
+        "UPDATE tracks SET last_played_at = CURRENT_TIMESTAMP WHERE file_path = ? ",
+        path,
+    )
+    .execute(&pool)
+    .await
+    .map_err(|e| format!("Error while updating last_played_at {}", e))?;
+
+
+    println!("Last played at for {} is now", path);
+    Ok(())
+}
+#[tauri::command]
+pub async fn add_listened_secs(
+    path: String,
+    seconds: i64,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    let pool = state.pool.clone();
+    sqlx::query!(
+        "UPDATE tracks SET total_played_sec =  total_played_sec + ? WHERE file_path = ?",
+        seconds,
+        path,
+    )
+    .execute(&pool)
+    .await
+    .map_err(|e| format!("Error while adding listened seconds to tracks {}", e))?;
+
+    Ok(())
+}

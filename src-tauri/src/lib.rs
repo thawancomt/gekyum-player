@@ -9,7 +9,6 @@ mod database;
 mod like_track;
 mod player;
 mod player_emitter;
-mod recent_tracks;
 mod scanner;
 mod track_count_manager;
 
@@ -45,7 +44,9 @@ pub fn run() {
         .setup(|app| {
             // Initialize SQLite pool inside .setup()
             let pool = tauri::async_runtime::block_on(async {
-                let app_data_dir = app.path().app_data_dir()
+                let app_data_dir = app
+                    .path()
+                    .app_data_dir()
                     .expect("Failed to get app data directory");
 
                 // Create the app data directory if it doesn't exist
@@ -116,10 +117,12 @@ pub fn run() {
             player::get_music_pos,
             player::toggle_play,
             scanner::auto_search_musics,
-            recent_tracks::add_to_recent,
             like_track::like_track,
             track_count_manager::increase_play,
-            track_count_manager::increase_skip
+            track_count_manager::increase_skip,
+            track_count_manager::add_listened_secs,
+            track_count_manager::update_played_last_time,
+            
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useSideBar } from "@/stores/useSideBar";
 import { useAlbum } from "@/stores/useAlbum";
 import { Button } from "../ui/button";
+import { useState } from "react";
 
 export default function NavBar() {
 
@@ -25,6 +26,9 @@ export default function NavBar() {
               }
        }
 
+       const [fold, setFold] = useState(window.innerWidth < 748)
+
+
        return (
               <nav
                      className="sticky top-0 shrink-0 left-0 z-50 flex h-fit w-full max-w-full flex-row flex-nowrap items-center justify-start overflow-hidden border-none bg-white py-3 outline-none"
@@ -40,6 +44,7 @@ export default function NavBar() {
                                    <ArrowLeft />
                             </Button>
                      </div>
+
 
                      <div className="relative flex h-full flex-1 flex-col items-center justify-start ">
                             <div className="flex w-full items-center justify-center gap-4 ">
@@ -84,6 +89,7 @@ export default function NavBar() {
                                    }
                             </div>
                      </div>
+
 
                      <div className="absolute top-2 right-4 z-10 flex h-12 items-center gap-4">
                             <Button

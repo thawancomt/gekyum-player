@@ -267,9 +267,9 @@ pub async fn get_artist_by_name(
     pool: &sqlx::SqlitePool,
     name: &str,
 ) -> Result<ArtistEntry, sqlx::Error> {
-    let Artist = sqlx::query_as!(ArtistEntry, "SELECT * FROM artists where name = ?", name)
+    let artist = sqlx::query_as!(ArtistEntry, "SELECT * FROM artists where name = ?", name)
         .fetch_optional(pool)
         .await?;
 
-    Artist.ok_or_else(|| sqlx::Error::RowNotFound)
+    artist.ok_or_else(|| sqlx::Error::RowNotFound)
 }
