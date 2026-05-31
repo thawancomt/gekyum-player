@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "\n        INSERT INTO tracks (\n            file_path,\n            cover_path,\n            title,\n            album_id,\n            artist_id,\n            year,\n            liked,\n            track_number,\n            play_count,\n            skip_count,\n            total_played_sec,\n            last_played_at,\n            mime_type,\n            duration\n        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)\n         ON CONFLICT (file_path) DO NOTHING;\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 14
+    },
+    "nullable": []
+  },
+  "hash": "715b2fea600ad947a20487080589b885515b28709ff45dfedf9135a263332cfe"
+}

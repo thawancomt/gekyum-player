@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE tracks set play_count = play_count + 1 where file_path = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "a865440df9779ab00c6c64f3817a17f856c8b384dfd85efe288e0a8a6e707328"
+}

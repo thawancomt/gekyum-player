@@ -13,7 +13,7 @@ use crate::player::get_track_data;
 use crate::AppState;
 
 fn get_missing_tracks(db_tracks: &HashSet<String>) -> HashSet<String> {
-    /* Return tracks that exists on database but no  on disk */
+    /* Return tracks that exists on database but no on disk */
     db_tracks
         .iter()
         .filter(|t| !Path::new(t).exists())

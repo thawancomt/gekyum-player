@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE tracks SET total_played_sec =  total_played_sec + ? WHERE file_path = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "06a12400a376bd08640dc6f514827ac3c10e30c0399b68c5cda564d35f4d5713"
+}

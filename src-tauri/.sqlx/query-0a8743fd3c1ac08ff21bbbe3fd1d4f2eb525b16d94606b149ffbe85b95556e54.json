@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE tracks SET last_played_at = CURRENT_TIMESTAMP WHERE file_path = ? ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "0a8743fd3c1ac08ff21bbbe3fd1d4f2eb525b16d94606b149ffbe85b95556e54"
+}

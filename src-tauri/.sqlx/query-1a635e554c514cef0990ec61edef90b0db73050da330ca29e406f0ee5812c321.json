@@ -1,0 +1,26 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE tracks SET liked = 1 - liked WHERE file_path = ? RETURNING liked as \"liked!\"",
+  "describe": {
+    "columns": [
+      {
+        "name": "liked!",
+        "ordinal": 0,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "tracks",
+            "name": "liked"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "1a635e554c514cef0990ec61edef90b0db73050da330ca29e406f0ee5812c321"
+}

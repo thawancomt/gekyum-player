@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "UPDATE tracks set skip_count = skip_count + 1 where file_path = ?",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 1
+    },
+    "nullable": []
+  },
+  "hash": "9e6239b6707748a096e0d603fbc28396c09d23d848156e11825161b71b82ff96"
+}
