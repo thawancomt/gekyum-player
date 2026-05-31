@@ -1,0 +1,12 @@
+{
+  "db_name": "SQLite",
+  "query": "INSERT INTO albums (name, cover_path) VALUES (?, ?) ON CONFLICT DO NOTHING",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Right": 2
+    },
+    "nullable": []
+  },
+  "hash": "2acad1f1cb7fc95505fb4b29f22e1dfa110dd4e81cf64c1d3b6861370ac7f3cd"
+}

@@ -14,6 +14,10 @@ import { invoke } from "@tauri-apps/api/core";
 import { Track } from "./types/music.type";
 import LikedTab from "./components/LikeTab";
 import MostPlayedTab from "./components/MostPlayedTab";
+import { Button } from "./components/ui/button";
+import { MediaControlEventType, mediaControls, PlaybackStatus, RepeatMode, setPlaybackInfo } from 'tauri-plugin-media-api';
+import { usePlayer } from "./stores/usePlayer";
+import { useEffect } from "react";
 
 const DEFAULT_PATH = "/home/thawancomt/Music/";
 
@@ -40,9 +44,41 @@ export async function initPlayerState() {
   await invoke("auto_search_musics");
 }
 
+
 function App() {
   const { currentTab } = useTab();
   initPlayerState();
+
+
+  const initMediaControls = async () => {
+    await mediaControls.initialize("gekyum-player", "Gekyum Player")
+
+    mediaControls.setEventHandler((event) => {
+      switch (event.eventType) {
+        case MediaControlEventType.PlayPause:
+          alert("teste")
+          break;
+      }
+    });
+  }
+  useEffect(() => {
+    const test = async () => {
+      await mediaControls.initialize("gekyum-player", "Gekyum Player");
+
+      await mediaControls.updateNowPlaying({
+        title: "Test Song",
+        artist: "Test Artist",
+        album: "Test Album",
+        duration: 240,
+        artworkUrl: "https://via.placeholder.com/300"
+      })
+
+      await mediaControls.setPlaybackStatus(PlaybackStatus.Playing);
+    };
+
+    test();
+  }, []);
+
   return (
     <TooltipProvider>
       <main className="h-screen w-screen overflow-hidden flex flex-col   ">

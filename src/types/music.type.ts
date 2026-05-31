@@ -8,4 +8,5 @@ export interface Track {
   liked: number;
   play_count: number;
   skip_count: number;
+  cover_path: string | null;
 }

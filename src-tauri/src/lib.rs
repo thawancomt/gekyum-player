@@ -2,15 +2,18 @@ use crate::database::TrackRead;
 use ::rodio::Player;
 use rodio::MixerDeviceSink;
 use sqlx::SqlitePool;
+use tauri_plugin_media::MediaExt;
 use std::str::FromStr;
 use std::sync::Mutex;
 use tauri::Manager;
+mod albums;
 mod database;
 mod like_track;
 mod player;
 mod player_emitter;
 mod scanner;
 mod track_count_manager;
+use tauri::Emitter;
 
 pub struct AppState {
     pub player: Mutex<Option<Player>>,
@@ -39,6 +42,7 @@ impl AppState {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_media::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_notification::init())
         .setup(|app| {
@@ -93,6 +97,11 @@ pub fn run() {
             player_emitter::start_position_emitter(app.handle().clone());
             player_emitter::start_end_track_emitter(app.handle().clone());
 
+            let handle = app.app_handle().clone();
+            app.media().set_event_handler(move |event: tauri_plugin_media::MediaControlEvent| {
+                handle.emit("media_control", &event).ok();
+            });
+
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -122,7 +131,6 @@ pub fn run() {
             track_count_manager::increase_skip,
             track_count_manager::add_listened_secs,
             track_count_manager::update_played_last_time,
-            
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -22,7 +22,6 @@ export default function SideBar() {
               is_playing: isPlaying,
               position: currentMusicPosition,
               current: currentMusic,
-              actions: { skip_track }
        } = usePlayer();
 
        const [volume, setVolume] = useState(0.0);
@@ -35,9 +34,7 @@ export default function SideBar() {
               return `${String(minu).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
        }
        const { actions: { cleanQueue } } = usePlaylist()
-       const skip = async () => {
-              await skip_track()
-       }
+
 
        return (
               <Sheet open={isOpen} onOpenChange={toggle} >
@@ -55,32 +52,11 @@ export default function SideBar() {
                                    <PlaylistList />
                             </div>
 
-                            <footer className="h-32 backdrop-blur-2xl">
+                            <footer className="h-fit backdrop-blur-2xl bg-zinc-50 flex justify-center items-center">
                                    <div className="w-full flex flex-col justify-between items-center p-3 gap-4 relative grow">
-
-
                                           <div className="w-full">
                                                  <SliderPlayer />
                                           </div>
-                                          <section className="gap-3 w-full flex justify-center relative">
-                                                 <Button variant={"ghost"}>
-                                                        <ArrowLeft />
-                                                 </Button>
-                                                 <Button
-                                                        onClick={async () => {
-                                                               await invoke("toggle_play");
-                                                        }}
-                                                 >
-                                                        {isPlaying ? <Pause /> : <Play />}
-                                                 </Button>
-                                                 <Button variant={"ghost"} onClick={async () => {
-                                                        await skip()
-                                                 }}>
-                                                        <ArrowRight />
-                                                 </Button>
-
-
-                                          </section>
                                    </div>
                             </footer>
                      </SheetContent>

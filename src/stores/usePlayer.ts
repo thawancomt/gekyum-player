@@ -3,6 +3,7 @@ import type { Track } from "@/types/music.type";
 import { invoke } from "@tauri-apps/api/core";
 import { create } from "zustand";
 import { useTracks } from "./useMusics";
+import { mediaControls, PlaybackStatus } from "tauri-plugin-media-api";
 
 interface PlayerActions {
   setPos: (position: number) => Promise<void>;
@@ -87,6 +88,14 @@ export const usePlayer = create<State>((set, get) => ({
       // so bellow update function is only local
       update_track(updated_current);
       set({ current: track, is_playing: true });
+
+      await mediaControls.updatePlaybackStatus(PlaybackStatus.Playing);
+
+      await mediaControls.updateNowPlaying({
+        title: track.title ?? "undefined",
+        duration : track.duration ?? 100
+      })
+
     },
     async toggleLike() {
       const {
@@ -102,14 +111,17 @@ export const usePlayer = create<State>((set, get) => ({
   },
 }));
 
-PlayerEvent.on("position_update", (new_position) => {
+PlayerEvent.on("position_update", async (new_position) => {
   usePlayer.setState({ position: new_position });
+  await mediaControls.setPosition(new_position);
 });
 
 PlayerEvent.on("play_state_change", (is_playing) => {
   usePlayer.setState({ is_playing });
+  mediaControls.updatePlaybackStatus(is_playing ? PlaybackStatus.Playing : PlaybackStatus.Paused);
 });
 
 PlayerEvent.on("track_ended", () => {
   usePlayer.setState({ current: null, position: null, is_playing: false });
+  mediaControls.updatePlaybackStatus(PlaybackStatus.Stopped);
 });

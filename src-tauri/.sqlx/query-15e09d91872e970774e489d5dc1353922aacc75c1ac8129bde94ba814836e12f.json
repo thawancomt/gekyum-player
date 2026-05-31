@@ -24,6 +24,17 @@
             "name": "name"
           }
         }
+      },
+      {
+        "name": "cover_path",
+        "ordinal": 2,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "albums",
+            "name": "cover_path"
+          }
+        }
       }
     ],
     "parameters": {
@@ -31,7 +42,8 @@
     },
     "nullable": [
       false,
-      false
+      false,
+      true
     ]
   },
   "hash": "15e09d91872e970774e489d5dc1353922aacc75c1ac8129bde94ba814836e12f"

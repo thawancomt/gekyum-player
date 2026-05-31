@@ -60,7 +60,6 @@ pub async fn update_played_last_time(
     .await
     .map_err(|e| format!("Error while updating last_played_at {}", e))?;
 
-
     println!("Last played at for {} is now", path);
     Ok(())
 }

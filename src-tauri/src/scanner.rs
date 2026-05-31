@@ -1,4 +1,7 @@
+use lofty::picture::MimeType;
+use lofty::tag::Tag;
 use sqlx::SqlitePool;
+use std::fs;
 use std::path::PathBuf;
 use std::{collections::HashSet, path::Path};
 use tauri::AppHandle;
@@ -21,7 +24,7 @@ fn get_missing_tracks(db_tracks: &HashSet<String>) -> HashSet<String> {
         .collect()
 }
 
-async fn handle_album(pool: &SqlitePool, album_name: &str) {
+async fn handle_album(pool: &SqlitePool, album_name: &str, cover_path: Option<String>) {
     match get_album_by_name(pool, album_name).await {
         Ok(_) => {}
         Err(_) => {
@@ -30,6 +33,7 @@ async fn handle_album(pool: &SqlitePool, album_name: &str) {
                 AlbumEntry {
                     id: None,
                     name: album_name.to_owned(),
+                    cover_path: cover_path,
                 },
             )
             .await;
@@ -165,6 +169,7 @@ pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>,
         .iter()
         .filter(|e| !missing_tracks.contains(&e.file_path))
         .cloned()
+        .map(|t| t.with_asset_url())
         .collect();
 
     emit_loaded_tracks(&app_handle, &tracks_to_emit);
@@ -186,9 +191,9 @@ pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>,
     let mut new_tracks: Vec<TrackRead> = Vec::new();
 
     for file_path in new_tracks_paths {
-        if let Ok(track) = get_track_data(&file_path).await {
+        if let Ok(track) = get_track_data(&file_path, &app_handle).await {
             if let Some(album) = &track.album_name {
-                handle_album(&pool, album).await;
+                handle_album(&pool, album, track.cover_path.clone()).await;
             };
             if let Some(artist) = &track.artist_name {
                 handle_artist(&pool, artist).await;
@@ -198,7 +203,14 @@ pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>,
         }
     }
     app_handle
-        .emit("new_tracks_found", &new_tracks)
+        .emit(
+            "new_tracks_found",
+            &new_tracks
+                .iter()
+                .cloned()
+                .map(|t| t.with_asset_url())
+                .collect::<Vec<TrackRead>>(),
+        )
         .map_err(|e| format!("Error while emitting new tracks {}", e))?;
 
     hydrate_database(&pool, new_tracks.clone()).await;

@@ -53,22 +53,26 @@ pub struct TrackRead {
     pub artist_name: Option<String>,
 }
 
-#[derive(Debug, Clone, FromRow)]
+impl TrackRead {
+    pub fn with_asset_url(mut self) -> Self {
+        self.cover_path = self
+            .cover_path
+            .map(|p| format!("http://asset.localhost/{}", p.replace('\\', "/")));
+        self
+    }
+}
+
+#[derive(Debug, Clone, FromRow, Serialize)]
 pub struct AlbumEntry {
     pub id: Option<i64>,
     pub name: String,
+    pub cover_path: Option<String>,
 }
 
 #[derive(Debug, Clone, FromRow)]
 pub struct ArtistEntry {
     pub id: Option<i64>,
     pub name: String,
-}
-
-#[derive(Debug, Clone, FromRow)]
-pub struct LastQueue {
-    index: u32,
-    tracks: Vec<String>,
 }
 
 pub fn track_entry_from_read(
@@ -188,11 +192,16 @@ pub async fn delete_track(pool: &sqlx::SqlitePool, file_path: String) -> Result<
 }
 
 pub async fn insert_album(pool: &sqlx::SqlitePool, album: AlbumEntry) -> Result<(), sqlx::Error> {
-    let AlbumEntry { name, id } = album;
+    let AlbumEntry {
+        name,
+        id,
+        cover_path,
+    } = album;
 
     sqlx::query!(
-        "INSERT INTO albums (name) VALUES (?) ON CONFLICT DO NOTHING",
+        "INSERT INTO albums (name, cover_path) VALUES (?, ?) ON CONFLICT DO NOTHING",
         name,
+        cover_path
     )
     .execute(pool)
     .await?;
@@ -256,9 +265,13 @@ pub async fn get_album_by_name(
     pool: &sqlx::SqlitePool,
     name: &str,
 ) -> Result<AlbumEntry, sqlx::Error> {
-    let album = sqlx::query_as!(AlbumEntry, "SELECT * FROM albums where name = ?", name)
-        .fetch_optional(pool)
-        .await?;
+    let album = sqlx::query_as!(
+        AlbumEntry,
+        "SELECT id, name, cover_path FROM albums where name = ?",
+        name
+    )
+    .fetch_optional(pool)
+    .await?;
 
     album.ok_or_else(|| sqlx::Error::RowNotFound)
 }
@@ -272,4 +285,12 @@ pub async fn get_artist_by_name(
         .await?;
 
     artist.ok_or_else(|| sqlx::Error::RowNotFound)
+}
+
+pub async fn get_all_albums(pool: &sqlx::SqlitePool) -> Result<Vec<AlbumEntry>, sqlx::Error> {
+    let albums = sqlx::query_as!(AlbumEntry, "SELECT id, name, cover_path FROM albums")
+        .fetch_all(pool)
+        .await?;
+
+    Ok(albums)
 }

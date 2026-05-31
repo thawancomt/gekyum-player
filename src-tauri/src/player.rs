@@ -1,33 +1,27 @@
 use lofty::file::{AudioFile, TaggedFileExt};
+use lofty::picture::MimeType;
 use lofty::read_from_path;
-use lofty::tag::Accessor;
+use lofty::tag::{Accessor, Tag};
 use rodio::{Decoder, DeviceSinkBuilder, Player};
 use std::fs;
 use std::io::Cursor;
 use std::path::Path;
 use std::time::Duration;
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 
 use crate::database::TrackRead;
 use crate::AppState;
 
 pub async fn _load_music_as_source(
     path: String,
-) -> Result<(Decoder<Cursor<Vec<u8>>>, Vec<u8>, TrackRead), String> {
+) -> Result<(Decoder<Cursor<Vec<u8>>>, Vec<u8>), String> {
     let bytes = fs::read(&path).map_err(|e| format!("error while reading file at: {}", e))?;
 
     let cursor = Cursor::new(bytes.clone());
 
     let source = Decoder::try_from(cursor).map_err(|e| format!("Erro: {}", e))?;
 
-    let file_path = Path::new(&path);
-    let music_data = get_track_data(file_path).await.ok();
-
-    if let Some(music_data) = music_data {
-        return Ok((source, bytes, music_data));
-    }
-
-    Err("Error while loading file from disk".to_string())
+    return Ok((source, bytes));
 }
 
 fn _ensure_player(state: &State<AppState>) -> Result<(), String> {
@@ -52,7 +46,31 @@ fn _ensure_player(state: &State<AppState>) -> Result<(), String> {
     Ok(())
 }
 
-pub async fn get_track_data(path: &Path) -> Result<TrackRead, String> {
+pub async fn get_album_picture(pic: &Tag, app_dir: std::path::PathBuf) -> Option<String> {
+    let picture = pic.pictures().first()?;
+    let data = picture.data();
+
+    let ext = match picture.mime_type() {
+        Some(MimeType::Png) => "png",
+        Some(MimeType::Jpeg) => "jpg",
+        Some(MimeType::Gif) => "gif",
+        Some(MimeType::Tiff) => "tiff",
+        _ => "bin", // desconhecido, salva assim mesmo
+    };
+
+    let hash: u64 = data.iter().fold(0u64, |acc, &b| acc.wrapping_add(b as u64));
+    let dest = app_dir.join("covers").join(format!("{}.{}", hash, ext));
+
+    fs::create_dir_all(dest.parent()?).ok()?;
+
+    if !dest.exists() {
+        fs::write(&dest, data).ok()?;
+    }
+
+    dest.to_str().map(|s| s.to_string())
+}
+
+pub async fn get_track_data(path: &Path, app_handle: &AppHandle) -> Result<TrackRead, String> {
     let tagged = match read_from_path(path) {
         Ok(t) => t,
         Err(_) => return Err("Errow while reading file".to_string()),
@@ -62,7 +80,14 @@ pub async fn get_track_data(path: &Path) -> Result<TrackRead, String> {
     let tag = tagged
         .primary_tag()
         .or_else(|| tagged.first_tag())
-        .ok_or_else(|| "No tags found in the file".to_string())?;
+        .ok_or_else(|| "No tags found in the file".to_string())?
+        .to_owned();
+
+    let app_dir = app_handle
+        .path()
+        .app_data_dir()
+        .map_err(|e| format!("Error getting app data dir: {}", e))?;
+    let cover_path = get_album_picture(&tag, app_dir).await;
 
     Ok(TrackRead {
         file_path: path.to_string_lossy().to_string(),
@@ -71,7 +96,7 @@ pub async fn get_track_data(path: &Path) -> Result<TrackRead, String> {
         album_name: tag.album().map(|a| a.to_string()),
         track_number: tag.track(),
         total_played_sec: 0,
-        cover_path: None,
+        cover_path: cover_path,
         last_played_at: None,
         liked: 0,
         mime_type: path.extension().map(|e| e.to_string_lossy().into_owned()),
@@ -89,7 +114,9 @@ pub async fn play(
     app: AppHandle,
 ) -> Result<bool, String> {
     _ensure_player(&state)?;
-    let (source, bytes, music_data) = _load_music_as_source(path).await?;
+    let (source, bytes) = _load_music_as_source(path.clone()).await?;
+
+    let music_data = get_track_data(Path::new(&path), &app).await?;
 
     let current_player = state.player.lock().unwrap();
 
@@ -99,7 +126,7 @@ pub async fn play(
         player.append(source);
 
         *state.current_music_bytes.lock().unwrap() = Some(bytes);
-        *state.current_music.lock().unwrap() = Some(music_data);
+        *state.current_music.lock().unwrap() = Some(music_data.with_asset_url());
 
         player.play();
         let _ = app.emit("play_state_change", true);
