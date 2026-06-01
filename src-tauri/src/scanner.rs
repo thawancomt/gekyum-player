@@ -59,7 +59,7 @@ async fn handle_artist(pool: &SqlitePool, artist_name: &str) {
 
 async fn drop_missing_tracks(pool: &SqlitePool, to_be_dropped: &HashSet<String>) {
     for track_file_path in to_be_dropped {
-        delete_track(pool, track_file_path.to_owned()).await;
+        let _ = delete_track(pool, track_file_path.to_owned()).await;
     }
 }
 
@@ -96,11 +96,19 @@ fn emit_loaded_tracks(app_handle: &AppHandle, tracks: &Vec<TrackRead>) {
     println!("loaded tracks emitted");
 }
 
+fn get_audio_dir() -> String {
+    #[cfg(target_os = "android")]
+    return "/storage/emulated/0/Music".to_string();
+
+    dirs::audio_dir()
+        .map(|p| p.to_string_lossy().to_string())
+        .unwrap_or_else(|| "./home/".to_string())
+}
+
 fn discover_new_tracks(excluded_paths: HashSet<PathBuf>) -> HashSet<PathBuf> {
-    let audio_dir = dirs::audio_dir().map(|p| p.to_string_lossy().to_string());
-    WalkDir::new(Path::new(
-        &audio_dir.unwrap_or_else(|| "./home/".to_string()),
-    ))
+    let audio_dir = get_audio_dir();
+    println!("Audio dir: {:?}", audio_dir);
+    WalkDir::new(Path::new(&audio_dir))
     .into_iter()
     .filter_map(|dir| dir.ok())
     .filter(|file| file.path().is_file())

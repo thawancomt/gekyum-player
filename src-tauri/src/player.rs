@@ -26,21 +26,25 @@ pub async fn _load_music_as_source(
 }
 
 fn _ensure_player(state: &State<AppState>) -> Result<(), String> {
-    /* Ensure Player is create and loaded on the State */
-    let mut current_player = state.player.lock().unwrap();
-    let mut current_handle = state.handle.lock().unwrap();
+    let mut current_player = state
+        .player
+        .lock()
+        .map_err(|e| format!("Error with mutex (PLAYER), {e}"))?;
 
-    // Se o player já existe, não faz nada e retorna OK
+    let mut current_handle = state
+        .handle
+        .lock()
+        .map_err(|e| format!("Error with mutex (HANDLE), {e}"))?;
+
     if current_player.is_some() {
         return Ok(());
     }
 
-    // Se NÃO existe (primeira vez tocando algo), inicializa o hardware
-    let handle =
-        DeviceSinkBuilder::open_default_sink().map_err(|e| format!("Erro ao abrir Sink: {}", e))?;
+    let handle = DeviceSinkBuilder::open_default_sink()
+        .map_err(|e| format!("Erro ao abrir Sink: {e}"))?;
+
     let new_player = Player::connect_new(&handle.mixer());
 
-    // Salva no estado global
     *current_handle = Some(handle);
     *current_player = Some(new_player);
 

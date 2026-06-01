@@ -15,6 +15,7 @@ import { Track } from "./types/music.type";
 import LikedTab from "./components/LikeTab";
 import MostPlayedTab from "./components/MostPlayedTab";
 import NowPlayingTab from "./components/NowPlayingTab";
+import { Toaster } from "sonner";
 
 const DEFAULT_PATH = "/home/thawancomt/Music/";
 
@@ -74,6 +75,7 @@ function App() {
                 <SideBar />
                 <PlayerFooter />
             </main>
+            <Toaster position="bottom-center" />
         </TooltipProvider>
     );
 }

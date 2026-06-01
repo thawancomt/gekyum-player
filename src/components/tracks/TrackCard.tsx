@@ -39,9 +39,9 @@ export default function TrackCard({ track, showPlayButton }: TrackCardProps) {
                 {
                     track.cover_path && (
                         <motion.img
-                            className="w-32 aspect-square object-cover"
+                            className="w-26 aspect-square "
                             animate={{
-                                borderRadius: isThisTrackPlaying ? "100%" : "0%",
+                                borderRadius: isThisTrackPlaying ? "50%" : "0%",
                                 scale: isThisTrackPlaying ? 0.9 : 1,
                             }}
                             transition={{
@@ -77,6 +77,9 @@ export default function TrackCard({ track, showPlayButton }: TrackCardProps) {
                     )
                 }
                 onClick={() => {
+                    if (!isThisTrackPlaying) {
+                        return addToQueue(track);
+                    }
                     toggleIsPlaying()
                 }}
             >

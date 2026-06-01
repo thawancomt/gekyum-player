@@ -16,7 +16,8 @@ export default function MusicTab({ searchPath }: MusicTabProps) {
     {},
   );
   const { setMusics, musics } = useTracks();
-  const { addAlbums } = useAlbum();
+  const { albums } = useAlbum();
+
 
   const [search, setSearch] = useState("");
 
@@ -34,6 +35,22 @@ export default function MusicTab({ searchPath }: MusicTabProps) {
       <header className="col-span-full">
         <Input placeholder="" value={search} onChange={(e) => setSearch(e.target.value)} className="bg-transparent ring-1 ring-zinc-400 rounded-none!" />
       </header>
+      <section className="flex flex-col items-center justify-center">
+        <div>
+          <span>
+            <strong>
+              {musics.length}
+            </strong>
+            {" "}{musics.length === 1 ? "track" : "tracks"}
+          </span>
+
+        </div>
+        <div>
+          <span>
+            {Object.keys(albums).length} Albumns
+          </span>
+        </div>
+      </section>
       <AnimatePresence mode="wait">
         <section className="w-full " >
           {filteredMusics.map((track, index) => (

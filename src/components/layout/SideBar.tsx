@@ -12,6 +12,7 @@ import MusicItem from "";
 import SliderPlayer from "../player/SliderPlayer";
 import PlaylistList from "../PlaylistList";
 import { usePlaylist } from "@/stores/usePlaylist";
+import SettingsCard from "../setttings/SettingsCard";
 
 export default function SideBar() {
        const {
@@ -46,6 +47,7 @@ export default function SideBar() {
                                    <Button onClick={cleanQueue}>
                                           Clear queue
                                    </Button>
+                                   <SettingsCard />
                             </div>
 
                             <div className="h-full overflow-auto bg-muted ">

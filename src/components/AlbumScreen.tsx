@@ -79,8 +79,6 @@ export function AlbumScreen() {
                 className="font-semibold text-2xl"
               >
                 {selectedAlbum}
-                {index},
-                {tracks.length}
               </motion.h1>
               {!isThisAlbumPlaying && (
                 <Button variant={"ghost"} onClick={async () => postQueue()}>
