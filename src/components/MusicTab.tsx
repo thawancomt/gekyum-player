@@ -31,7 +31,7 @@ export default function MusicTab({ searchPath }: MusicTabProps) {
   }, [search]);
 
   return (
-    <motion.div className="grid grid-cols-1  p-8    gap-8  overflow-auto grow">
+    <motion.div className="grid grid-cols-1 px-2  sm:p-8    gap-8  overflow-auto grow">
       <header className="col-span-full">
         <Input placeholder="" value={search} onChange={(e) => setSearch(e.target.value)} className="bg-transparent ring-1 ring-zinc-400 rounded-none!" />
       </header>
@@ -54,8 +54,7 @@ export default function MusicTab({ searchPath }: MusicTabProps) {
       <AnimatePresence mode="wait">
         <section className="w-full " >
           {filteredMusics.map((track, index) => (
-            <div key={track.file_path} className="flex relative overflow-hidden items-center gap-2  my-2  max-w-3xl mx-auto group transition-all duration-300">
-
+            <div key={track.file_path} className="flex relative overflow-hidden items-center gap-2  my-2   max-w-3xl mx-auto group transition-all duration-300">
               <div className=" flex items-center w-full  transition-all duration-300 gap-2 relative">
                 <h1 className="font-bold text-2xl text-zinc-500 w-12">
                   {index + 1}

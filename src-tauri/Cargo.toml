@@ -47,3 +47,6 @@ rodio = { version = "0.22.2", features = ["symphonia-all"] }
 cpal = { version = "0.15", features = ["oboe-shared-stdcxx"] }
 ndk-context = "0.1.1"
 jni = "0.21.1"
+
+[target.aarch64-linux-android.dependencies]
+tauri-plugin-media-session = "0.2.4"

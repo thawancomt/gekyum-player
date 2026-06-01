@@ -57,11 +57,11 @@ export default function AlbumsTab() {
        }
 
        return (
-              <div className=" w-full">
+              <div className=" w-full p-4 h-full overflow-y- overflow-x-hidden flex flex-col items-center">
                      <AnimatePresence>
                             {
                                    !selectedAlbum && (
-                                          <motion.nav className="flex  justify-center space-x-1 mt-3"
+                                          <motion.nav className="flex items-center  justify-center space-x-1 mt-3"
 
                                                  initial={{
                                                         opacity: 0,
@@ -92,10 +92,11 @@ export default function AlbumsTab() {
                                           </motion.nav>
                                    )
                             }
+
                             <Activity mode={show ? "visible" : "hidden"} >
                                    <motion.div
                                           ref={gridRef}
-                                          className="h-full w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 justify-evenly gap-8  overflow-auto md:p-20 p-8 place-content-center place-items-center
+                                          className="h-full w-full  grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 justify-evenly gap-8  overflow-auto md:p-20 p-4 
                                             "
                                           initial={{
                                                  scale: 0.8,

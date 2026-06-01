@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { usePlaylist } from "@/stores/usePlaylist";
 import { usePlayer } from "@/stores/usePlayer";
 import { Pause } from "lucide-react";
+import Aurora from "../Aurora";
 
 interface MusicItemProps {
   data: Track;
@@ -49,14 +50,22 @@ export default function AlbumTrack({ data }: MusicItemProps) {
       className={cn(
         // Transição suave de opacidade e cores de fundo cruas (zinc/neutral)
         "group flex items-center justify-between px-4 py-3 cursor-pointer transition-colors duration-300 select-none w-full",
-        "border-b border-zinc-900/40 last:border-0", // Linhas divisórias quase invisíveis
+        "border-b border-zinc-900/40 last:border-0 relative", // Linhas divisórias quase invisíveis
         isCurrentTrack
           ? "bg-zinc-800 text-zinc-100" // Quando ativo: inversão total (caixa preta)
           : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/20",
       )}
     >
+      {
+        isCurrentTrack && (
+          <div className="absolute inset-0 rotate-180 opacity-25 bgblu">
+            <Aurora colorStops={["#d4d4d8", "#51a2ff", "#d4d4d8"]} />
+          </div>
+        )
+      }
+
       {/* Esquerda: Index + Detalhes */}
-      <div className="flex items-center gap-6 font-mono tracking-tight text-xs">
+      <div className="flex items-center gap-6 font-mono tracking-tight text-xs z-20">
         {/* Número da faixa ou indicador de play sutil */}
         <span
           className={cn(
@@ -109,6 +118,7 @@ export default function AlbumTrack({ data }: MusicItemProps) {
             : "--:--"}
         </span>
       </div>
+
     </motion.div>
   );
 }

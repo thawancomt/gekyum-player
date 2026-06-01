@@ -1,3 +1,4 @@
+#![allow(unused_imports)]
 use crate::database::TrackRead;
 use ::rodio::Player;
 use rodio::MixerDeviceSink;
@@ -25,11 +26,11 @@ pub struct AppState {
     pub current_position: Mutex<Option<f32>>,
     pub volume: Mutex<Option<f32>>,
     pub pool: SqlitePool,
-    pub os_media_control: Mutex<MediaControls>,
+    pub os_media_control: Mutex<Option<MediaControls>>,
 }
 
 impl AppState {
-    pub fn new(pool: SqlitePool, os_media_control: MediaControls) -> Self {
+    pub fn new(pool: SqlitePool, os_media_control: Option<MediaControls>) -> Self {
         Self {
             player: Mutex::new(None),
             handle: Mutex::new(None),
@@ -45,7 +46,7 @@ impl AppState {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_notification::init())
         .setup(|app| {
@@ -106,7 +107,10 @@ pub fn run() {
                 hwnd,
             };
 
-            let mut media_control = MediaControls::new(platform_config).unwrap();
+            #[cfg(not(target_os = "android"))]
+            let mut media_control = Some(MediaControls::new(platform_config).unwrap());
+            #[cfg(target_os = "android")]
+            let mut media_control: Option<MediaControls> = None;
 
             let app_handle_for_media = app.handle().clone();
 
@@ -126,40 +130,34 @@ pub fn run() {
                 }
             }
 
-            media_control
-                .attach(move |event| {
-                    match event {
-                        souvlaki::MediaControlEvent::Toggle => {
-                            // Pegamos o estado atualizado direto do AppHandle
-                            let state = app_handle_for_media.state::<AppState>();
-
-                            // Chamamos a sua função passando o estado e um clone do handle
-                            let _ = player::toggle_play(state, app_handle_for_media.clone());
+            if let Some(ref mut controls) = media_control {
+                controls
+                    .attach(move |event| {
+                        match event {
+                            souvlaki::MediaControlEvent::Toggle => {
+                                let state = app_handle_for_media.state::<AppState>();
+                                let _ = player::toggle_play(state, app_handle_for_media.clone());
+                            }
+                            souvlaki::MediaControlEvent::Previous => {
+                                let _ = app_handle_for_media.emit("asked_prev", Null);
+                            }
+                            souvlaki::MediaControlEvent::Play => {
+                                let state = app_handle_for_media.state::<AppState>();
+                                let _ = player::toggle_play(state, app_handle_for_media.clone());
+                            }
+                            souvlaki::MediaControlEvent::Pause => {
+                                let state = app_handle_for_media.state::<AppState>();
+                                let _ = player::toggle_play(state, app_handle_for_media.clone());
+                            }
+                            souvlaki::MediaControlEvent::Next => {
+                                let _ = app_handle_for_media.emit("asked_next", Null);
+                            }
+                            _ => {}
                         }
-                        souvlaki::MediaControlEvent::Previous => {
-                            let _ = app_handle_for_media.emit("asked_prev", Null);
-                        }
+                    })
+                    .unwrap();
+            }
 
-                        souvlaki::MediaControlEvent::Play => {
-                            let state = app_handle_for_media.state::<AppState>();
-                            let _ = player::toggle_play(state, app_handle_for_media.clone());
-                        }
-
-                        souvlaki::MediaControlEvent::Pause => {
-                            let state = app_handle_for_media.state::<AppState>();
-                            let _ = player::toggle_play(state, app_handle_for_media.clone());
-                        }
-
-                        souvlaki::MediaControlEvent::Next => {
-                            print!("TESTE");
-                            let _ = app_handle_for_media.emit("asked_next", Null);
-                        }
-
-                        // Aqui você pode adicionar Next, Previous, etc depois
-                        _ => {}
-                    }
-                })
-                .unwrap();
             // Manage app state with the created pool
             app.manage(AppState::new(pool, media_control));
 
@@ -191,7 +189,12 @@ pub fn run() {
         })
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
-        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_opener::init());
+
+    #[cfg(target_os = "android")]
+    let builder = builder.plugin(tauri_plugin_media_session::init());
+
+    builder
         .invoke_handler(tauri::generate_handler![
             player::play,
             player::set_volume,

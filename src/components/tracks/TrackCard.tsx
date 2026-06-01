@@ -20,7 +20,7 @@ export default function TrackCard({ track, showPlayButton }: TrackCardProps) {
         <motion.div key={track.file_path}
 
 
-            className="bg-zinc-300 h-26 w-full shrink group flex items-center justify-between hover:shadow-xl
+            className="bg-zinc-300 border min-h-26 max-w-full min-w-full overflow-hidden shrink group flex items-center justify-between hover:shadow-xl
             relative"
             onClick={() => {
                 if (showPlayButton) return;
@@ -54,7 +54,7 @@ export default function TrackCard({ track, showPlayButton }: TrackCardProps) {
                 }
                 <main className="flex flex-col  items-start space-y-2 p-4  20">
                     <header >
-                        <h1 className="font-semibold ">
+                        <h1 className="font-semibold  text-xs sm:text-sm ">
                             {track.title ?? track.file_path}
                         </h1>
                     </header>
@@ -71,9 +71,10 @@ export default function TrackCard({ track, showPlayButton }: TrackCardProps) {
                 variant={"outline"}
                 className={
                     cn(
-                        "absolute right-2  transition-opacity duration-300 rounded-none",
+                        "absolute right-12  transition-opacity duration-300 rounded-none",
                         "opacity-0  group-hover:opacity-100",
-                        isThisTrackPlaying ? "opacity-100" : ""
+                        isThisTrackPlaying ? "opacity-100" : "",
+                        !showPlayButton && "hidden",
                     )
                 }
                 onClick={() => {

@@ -6,13 +6,14 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { Fullscreen } from "lucide-react";
 import { Button } from "./ui/button";
+import Aurora from "./Aurora";
 
 export default function NowPlayingTab() {
 	const { current, is_playing } = usePlayer();
 	const { tracks } = usePlaylist();
 	const [fullScreen, setFullScreen] = useState(false);
 	return (
-		<motion.div className="grow grid  md:grid-cols-2">
+		<motion.div className="grow grid  md:grid-cols-2 ">
 			<Button
 				variant={"ghost"}
 				className="absolute top-2 right-2 z-50"
@@ -30,14 +31,14 @@ export default function NowPlayingTab() {
 				<motion.img
 					key={current?.cover_path}
 
-					initial={{ scale: 0.9, opacity: 0.58 }}
-					animate={{ scale: is_playing ? 1.5 : 1.3, opacity: 0.3, transition: { duration: 1 } }}
+					initial={{ scale: 1, opacity: 0.58 }}
+					animate={{ scale: is_playing ? 1.1 : 1.15, opacity: 0.5, transition: { duration: 1 } }}
 					exit={{ scale: 1.5, opacity: 0 }}
 
 					src={current?.cover_path || ""}
 					className={cn(
 						"rounded-full w-full scale-150 blur-in blur-xs opacity-20 overflow-hidden hover:scale-105 transition-all duration-300",
-						"animate-spin animation-duration-[900s]  shadow",
+						"animate-spin animation-duration-[300s]  shadow",
 					)}
 					alt="album-cover"
 				/>
@@ -45,7 +46,7 @@ export default function NowPlayingTab() {
 
 			<section
 				className={cn(
-					"flex items-center justify-center z-10 relative overflow-hidden border-r-gray-300",
+					"items-center justify-center z-10 relative overflow-hidden border-r-gray-300 ",
 					fullScreen && "col-span-2",
 				)}
 			>
@@ -63,7 +64,7 @@ export default function NowPlayingTab() {
 							className={cn(
 								"rounded-full w-100 overflow-hidden hover:scale-105 transition-all duration-300",
 								is_playing &&
-								"animate-spin animation-duration-[100s] hover:scale-101 shadow",
+								"animate-spin animation-duration-[300s] hover:scale-101 shadow",
 							)}
 							alt="album-cover"
 						/>
@@ -80,11 +81,15 @@ export default function NowPlayingTab() {
 
 					</motion.div>
 				)}
+
+				<div className="fixed inset-0 rotate-180 opacity-40">
+					<Aurora colorStops={["#d4d4d8", "#51a2ff", "#d4d4d8"]} />
+				</div>
 			</section>
 			{/* COL 2 */}
 			<section
 				className={cn(
-					"overflow-auto  h-[80%] my-auto flex flex-col  no-scrollbar",
+					"overflow-y-auto h-full  sm:h-[80%] my-auto flex flex-col  no-scrollbar bg-zinc-100/30 pt-4 z-50",
 					fullScreen && "hidden",
 				)}
 			>

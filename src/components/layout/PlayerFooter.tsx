@@ -19,6 +19,7 @@ import { useState } from "react";
 import { useSideBar } from "@/stores/useSideBar";
 import SoftAurora from "../SoftAurora";
 import { useTab } from "@/stores/useTab";
+import Aurora from "../Aurora";
 
 export default function PlayerFooter() {
 	const {
@@ -61,13 +62,15 @@ export default function PlayerFooter() {
 		<AnimatePresence>
 			<motion.div
 				layout
-				className=" z-40 bg-zinc-300/90   flex  flex-col md:grid md:grid-cols-3 justify-center md:justify-between  gap-3  bottom-0 w-full  py-1 md:h-16 md:max-h-16"
+				className=" z-40 bg-zinc-300/90  relative  flex  flex-col md:grid md:grid-cols-3 justify-center md:justify-between  gap-3  bottom-0 w-full  py-1 md:h-16 md:max-h-16"
 			>
+
 				<motion.div
 					layout
 					className="flex items-center  truncate text-ellipsis px-1 h-14! relative"
 					key={"track-detail"}
 				>
+
 					<motion.div
 						className="h-12 w-12 bg-zinc-500 m-1 rounded-md  z-50"
 						onClick={() => {
@@ -106,15 +109,16 @@ export default function PlayerFooter() {
 				</motion.div>
 				<motion.div
 					layout
-					className="flex justify-evenly items-center   "
+					className="flex justify-evenly items-center  relative"
 					key={"controls-and-bar"}
 				>
+
 					<SliderPlayer compactMode={true} />
 				</motion.div>
 				<motion.section
 					layout
 					key={"tools"}
-					className="flex flex-col md:flex-row gap-2 justify-end items-center  w-full   "
+					className="flex flex-col md:flex-row gap-2 justify-end items-center  w-full  z-50 "
 				>
 					<Button
 						variant={"link"}
@@ -174,7 +178,8 @@ export default function PlayerFooter() {
 						/>
 					</Button>
 				</motion.section>
+
 			</motion.div>
-		</AnimatePresence>
+		</AnimatePresence >
 	);
 }

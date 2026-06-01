@@ -130,24 +130,26 @@ pub async fn play(
         player.stop();
         player.append(source);
 
-        // Tratamos o erro graciosamente em vez de usar .unwrap()
-        if let Err(e) = media_control.set_metadata(souvlaki::MediaMetadata {
-            title: music_data.title.as_deref(),
-            album: music_data.album_name.as_deref(),
-            artist: music_data.artist_name.as_deref(),
-            cover_url: music_data.cover_path.as_deref(),
-            duration: Some(Duration::from_secs(music_data.duration as u64)),
-        }) {
-            eprintln!("Aviso: Falha ao atualizar os metadados no SO: {:?}", e);
+        if let Some(ref mut controls) = *media_control {
+            if let Err(e) = controls.set_metadata(souvlaki::MediaMetadata {
+                title: music_data.title.as_deref(),
+                album: music_data.album_name.as_deref(),
+                artist: music_data.artist_name.as_deref(),
+                cover_url: music_data.cover_path.as_deref(),
+                duration: Some(Duration::from_secs(music_data.duration as u64)),
+            }) {
+                eprintln!("Aviso: Falha ao atualizar os metadados no SO: {:?}", e);
+            }
+
+            let _ = controls.set_playback(souvlaki::MediaPlayback::Playing {
+                progress: Some(MediaPosition(Duration::from_secs(0))),
+            });
         }
 
         *state.current_music_bytes.lock().unwrap() = Some(bytes);
         *state.current_music.lock().unwrap() = Some(music_data);
 
         player.play();
-        media_control.set_playback(souvlaki::MediaPlayback::Playing {
-            progress: Some(MediaPosition(Duration::from_secs(0))),
-        });
         let _ = app.emit("play_state_change", true);
     }
 

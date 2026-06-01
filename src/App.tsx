@@ -16,6 +16,7 @@ import LikedTab from "./components/LikeTab";
 import MostPlayedTab from "./components/MostPlayedTab";
 import NowPlayingTab from "./components/NowPlayingTab";
 import { Toaster } from "sonner";
+import { Activity } from "react";
 
 const DEFAULT_PATH = "/home/thawancomt/Music/";
 
@@ -49,9 +50,15 @@ export async function initPlayerState() {
 }
 
 
+let isPlayerInitialized = false;
+
 function App() {
     const { currentTab } = useTab();
-    initPlayerState();
+
+    if (!isPlayerInitialized) {
+        isPlayerInitialized = true;
+        initPlayerState();
+    }
 
     return (
         <TooltipProvider>
@@ -60,17 +67,23 @@ function App() {
                 <NavBar />
                 <div className="flex relative grow overflow-hidden">
                     <AnimatePresence mode="wait">
-                        {currentTab === "musics" && <MusicTab searchPath={DEFAULT_PATH} />}
                         {currentTab === "albums" && <AlbumsTab key={"albums"} />}
-                        {currentTab === "discover" && <DiscoverTab key={"discover"} />}
-                        {currentTab === "liked" && <LikedTab key={"liked"} />}
-                        {currentTab === "most played" && (
-                            <MostPlayedTab key={"most-played"} />
-                        )}
-                        {currentTab === "now_playing" && (
-                            <NowPlayingTab />
-                        )}
                     </AnimatePresence>
+                    <Activity mode={currentTab === "musics" ? "visible" : "hidden"}>
+                        <MusicTab searchPath={DEFAULT_PATH} />
+                    </Activity>
+                    <Activity mode={currentTab === "discover" ? "visible" : "hidden"}>
+                        <DiscoverTab key={"discover"} />
+                    </Activity>
+                    <Activity mode={currentTab === "liked" ? "visible" : "hidden"}>
+                        <LikedTab key={"liked"} />
+                    </Activity>
+                    <Activity mode={currentTab === "most played" ? "visible" : "hidden"}>
+                        <MostPlayedTab key={"most-played"} />
+                    </Activity>
+                    <Activity mode={currentTab === "now_playing" ? "visible" : "hidden"}>
+                        <NowPlayingTab />
+                    </Activity>
                 </div>
                 <SideBar />
                 <PlayerFooter />

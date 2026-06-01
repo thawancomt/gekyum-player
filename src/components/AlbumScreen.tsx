@@ -5,7 +5,6 @@ import { Button } from "./ui/button";
 import { Disc3, Play } from "lucide-react";
 import AlbumTrack from "./albums/AlbumTrack";
 import { usePlayer } from "@/stores/usePlayer";
-import { cn } from "@/lib/utils";
 
 export function AlbumScreen() {
   const { albums, selectedAlbum } = useAlbum();
@@ -45,7 +44,7 @@ export function AlbumScreen() {
           delay: 0.2,
         }}
         layoutId={`morph-${name}-sub`}
-        className="absolute  inset-0 flex flex-col overflow-y-auto    items-start   mx-auto   no-scrollbar border"
+        className="absolute  inset-0 flex flex-col overflow-y-auto    items-start   mx-auto   no-scrollbar border  "
       >
 
         <div className="grow flex justify-center items-center flex-col  w-full z-50  ">

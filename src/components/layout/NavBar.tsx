@@ -31,7 +31,7 @@ export default function NavBar() {
 
     return (
         <nav
-            className="sticky top-0 shrink-0 left-0 z-50 flex h-fit w-full max-w-full flex-row flex-nowrap items-center justify-start overflow-hidden border-none  py-3 outline-none"
+            className="bg-white/30 sticky top-0 shrink-0 left-0 z-50 flex h-fit w-full max-w-full flex-row flex-nowrap items-center justify-start overflow-hidden border-none  py-3 outline-none"
         >
             <div className="absolute top-2 left-4 z-10 flex h-12 items-center ">
                 <Button
@@ -63,7 +63,7 @@ export default function NavBar() {
 
                 <div className="flex w-full items-center justify-center gap-4">
                     {
-                        (["recent", "most played"] satisfies Tab[]).map(tab => {
+                        (["most played", "now_playing"] satisfies Tab[]).map(tab => {
                             return <Button variant={"link"} onClick={() => { toggleTab(tab) }}
                                 className={cn(
                                     currentTab === tab ? "" : "text-muted-foreground/50",
@@ -75,32 +75,7 @@ export default function NavBar() {
                     }
                 </div>
 
-                <div className="flex w-full items-center justify-center gap-4">
-                    {
-                        (["discover"] satisfies Tab[]).map(tab => {
-                            return <Button variant={"link"} onClick={() => { toggleTab(tab) }}
-                                className={cn(
-                                    currentTab === tab ? "" : "text-muted-foreground/50",
-                                    "uppercase transition-all duration-500"
-                                )}
 
-                            >{tab}</Button>
-                        })
-                    }
-                    <div className="flex  items-center justify-center gap-4">
-                        {
-                            (["now_playing"] satisfies Tab[]).map(tab => {
-                                return <Button variant={"link"} onClick={() => { toggleTab(tab) }}
-                                    className={cn(
-                                        currentTab === tab ? "" : "text-muted-foreground/50",
-                                        "uppercase transition-all duration-500"
-                                    )}
-
-                                >{tab}</Button>
-                            })
-                        }
-                    </div>
-                </div>
             </div>
 
 
