@@ -61,7 +61,7 @@ export default function PlayerFooter() {
 		<AnimatePresence>
 			<motion.div
 				layout
-				className="fixed z-40 bg-zinc-300/30   flex  flex-col md:grid md:grid-cols-3 justify-center md:justify-between  gap-3  bottom-0 w-full  py-1 md:h-16 md:max-h-16"
+				className=" z-40 bg-zinc-300/90   flex  flex-col md:grid md:grid-cols-3 justify-center md:justify-between  gap-3  bottom-0 w-full  py-1 md:h-16 md:max-h-16"
 			>
 				<motion.div
 					layout

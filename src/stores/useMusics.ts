@@ -30,7 +30,7 @@ export const useTracks = create<state>((set, get) => ({
 }));
 
 PlayerEvent.on("tracks_loaded", (data) => {
-	useTracks.getState().setMusics(data);
+	useTracks.getState().setMusics(data.map((music) => ({ ...music, cover_path: music.cover_path ? convertFileSrc(music.cover_path) : null })));
 
 	let albums: Record<string, Track[]> = {};
 

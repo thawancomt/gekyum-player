@@ -31,7 +31,7 @@ export default function NavBar() {
 
     return (
         <nav
-            className="sticky top-0 shrink-0 left-0 z-50 flex h-fit w-full max-w-full flex-row flex-nowrap items-center justify-start overflow-hidden border-none bg-white py-3 outline-none"
+            className="sticky top-0 shrink-0 left-0 z-50 flex h-fit w-full max-w-full flex-row flex-nowrap items-center justify-start overflow-hidden border-none  py-3 outline-none"
         >
             <div className="absolute top-2 left-4 z-10 flex h-12 items-center ">
                 <Button
@@ -87,19 +87,19 @@ export default function NavBar() {
                             >{tab}</Button>
                         })
                     }
-                </div>
-                <div className="flex w-full items-center justify-center gap-4">
-                    {
-                        (["now_playing"] satisfies Tab[]).map(tab => {
-                            return <Button variant={"link"} onClick={() => { toggleTab(tab) }}
-                                className={cn(
-                                    currentTab === tab ? "" : "text-muted-foreground/50",
-                                    "uppercase transition-all duration-500"
-                                )}
+                    <div className="flex  items-center justify-center gap-4">
+                        {
+                            (["now_playing"] satisfies Tab[]).map(tab => {
+                                return <Button variant={"link"} onClick={() => { toggleTab(tab) }}
+                                    className={cn(
+                                        currentTab === tab ? "" : "text-muted-foreground/50",
+                                        "uppercase transition-all duration-500"
+                                    )}
 
-                            >{tab}</Button>
-                        })
-                    }
+                                >{tab}</Button>
+                            })
+                        }
+                    </div>
                 </div>
             </div>
 

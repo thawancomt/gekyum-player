@@ -54,7 +54,8 @@ function App() {
 
     return (
         <TooltipProvider>
-            <main className="h-screen w-screen overflow-hidden flex flex-col   ">
+            <main className="h-screen w-screen overflow-hidden flex flex-col relative">
+
                 <NavBar />
                 <div className="flex relative grow overflow-hidden">
                     <AnimatePresence mode="wait">

@@ -55,7 +55,7 @@ export default function SliderPlayer({ compactMode }: { compactMode?: boolean })
     <AnimatePresence>
 
       {compactMode && (
-        <div className="relative grow flex gap-3 flex-col px-1 md:px-0">
+        <div className="relative grow flex gap-3 flex-col px-1 pt-1 md:px-0">
 
           <motion.div className="w-full  relative flex items-center">
             <p className="absolute left-2 top-4 text-xs">

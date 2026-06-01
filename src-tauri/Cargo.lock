@@ -1790,6 +1790,7 @@ dependencies = [
  "lofty",
  "log",
  "nvml-wrapper",
+ "raw-window-handle",
  "rodio",
  "serde",
  "serde_json",

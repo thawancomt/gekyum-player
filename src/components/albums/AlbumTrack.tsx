@@ -19,7 +19,6 @@ export default function AlbumTrack({ data }: MusicItemProps) {
   const {
     current,
     is_playing,
-    actions: { play_track },
   } = usePlayer();
 
   const ref = useRef<HTMLDivElement>(null);

@@ -51,7 +51,7 @@ export const usePlaylist = create<state>((set, get) => ({
 				const targetMusicIndex = albumTracks.findIndex(
 					(m) => m.file_path === music.file_path,
 				);
-				set({ tracks: albumTracks, index: targetMusicIndex });
+				set({ tracks: albumTracks, index: targetMusicIndex  });
 			}
 
 			await usePlayer.getState().actions.play_track(music);
@@ -62,7 +62,7 @@ export const usePlaylist = create<state>((set, get) => ({
 			}));
 		},
 
-		next() {
+		async next() {
 			const { index, tracks } = get();
 			const nextIndex = index + 1;
 			const trackCount = tracks.length;
@@ -70,9 +70,9 @@ export const usePlaylist = create<state>((set, get) => ({
 			if (nextIndex >= trackCount) {
 				return;
 			}
-			const nextTrack = tracks[index];
-			set((prev) => ({ index: prev.index + 1 }));
-			usePlayer.getState().actions.play_track(nextTrack);
+			const nextTrack = tracks[nextIndex];
+			await usePlayer.getState().actions.play_track(nextTrack);
+			set((prev) => ({ index: nextIndex }));
 		},
 		async prev() {
 			const {

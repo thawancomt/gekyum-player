@@ -87,10 +87,25 @@ pub fn run() {
                 pool
             });
 
+
+            #[cfg(target_os = "windows")]
+            let hwnd = {
+                use raw_window_handle::{HasWindowHandle, RawWindowHandle};
+                let window = app.get_webview_window("main").unwrap();
+                let handle = window.window_handle().unwrap();
+                match handle.as_raw() {
+                    RawWindowHandle::Win32(h) => Some(h.hwnd.get() as *mut std::ffi::c_void),
+                    _ => None,
+                }
+            };
+
+            #[cfg(not(target_os = "windows"))]
+            let hwnd = None;
+
             let platform_config = PlatformConfig {
                 dbus_name: "GekyumPlayer",
                 display_name: "Gekyum Player",
-                hwnd: None,
+                hwnd,
             };
 
             let mut media_control = MediaControls::new(platform_config).unwrap();
@@ -109,6 +124,16 @@ pub fn run() {
                         }
                         souvlaki::MediaControlEvent::Previous => {
                             let _ = app_handle_for_media.emit("asked_prev", Null);
+                        }
+
+                        souvlaki::MediaControlEvent::Play => {
+                            let state = app_handle_for_media.state::<AppState>();
+                            let _ = player::toggle_play(state, app_handle_for_media.clone());
+                        }
+
+                        souvlaki::MediaControlEvent::Pause => {
+                            let state = app_handle_for_media.state::<AppState>();
+                            let _ = player::toggle_play(state, app_handle_for_media.clone());
                         }
 
                         souvlaki::MediaControlEvent::Next => {
