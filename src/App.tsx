@@ -14,6 +14,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Track } from "./types/music.type";
 import LikedTab from "./components/LikeTab";
 import MostPlayedTab from "./components/MostPlayedTab";
+import NowPlayingTab from "./components/NowPlayingTab";
 
 const DEFAULT_PATH = "/home/thawancomt/Music/";
 
@@ -63,6 +64,9 @@ function App() {
                         {currentTab === "liked" && <LikedTab key={"liked"} />}
                         {currentTab === "most played" && (
                             <MostPlayedTab key={"most-played"} />
+                        )}
+                        {currentTab === "now_playing" && (
+                            <NowPlayingTab />
                         )}
                     </AnimatePresence>
                 </div>

@@ -9,16 +9,21 @@ fn has_nvidia() -> bool {
 }
 
 fn main() {
-    // Due to DMABUF conflict between wayland and nvidia driver an
-    // extra check is needed to ensure we not use DMABUF that can crash app
     let os = std::env::consts::OS;
-    println!("DETECTED OS... {}", os);
 
-    if os == "linux" {
-        if has_nvidia() {
-            println!("Due limitations we've disabled DMABUF for NVIDIA desktops");
-            std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
-        }
+    if os == "linux" && has_nvidia() && std::env::var("GEKYUM_REEXEC").is_err() {
+        use std::os::unix::process::CommandExt;
+
+        let exe = std::env::current_exe().unwrap();
+        let err = std::process::Command::new(exe)
+            .args(std::env::args().skip(1))
+            .env("GDK_BACKEND", "x11")
+            .env("WEBKIT_DISABLE_DMABUF_RENDERER", "1")
+            .env("GEKYUM_REEXEC", "1")
+            .exec(); // substitui o processo, mesmo PID, herda tudo
+
+        eprintln!("exec failed: {}", err);
+        std::process::exit(1);
     }
 
     gekyum_player_lib::run()

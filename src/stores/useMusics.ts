@@ -40,7 +40,7 @@ PlayerEvent.on("tracks_loaded", (data) => {
 		if (!(music.album_name in albums)) {
 			albums[music.album_name] = [];
 		}
-		albums[music.album_name].push({ ...music, cover_path: convertFileSrc(music.cover_path || "") });
+		albums[music.album_name].push({ ...music, cover_path: music.cover_path ? convertFileSrc(music.cover_path) : null });
 	});
 
 	useAlbum.getState().addAlbums(albums);
