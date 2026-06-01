@@ -1,8 +1,6 @@
 use crate::database::TrackRead;
-use crate::player::toggle_play;
 use ::rodio::Player;
 use rodio::MixerDeviceSink;
-use souvlaki::MediaControlEvent;
 use souvlaki::MediaControls;
 use souvlaki::PlatformConfig;
 use sqlx::SqlitePool;
@@ -111,6 +109,22 @@ pub fn run() {
             let mut media_control = MediaControls::new(platform_config).unwrap();
 
             let app_handle_for_media = app.handle().clone();
+
+            #[cfg(target_os = "android")]
+            {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.with_webview(|webview| {
+                        webview.jni_handle().exec(|env, activity, _webview| {
+                            let vm = env.get_java_vm().unwrap();
+                            let vm_ptr = vm.get_java_vm_pointer() as *mut std::ffi::c_void;
+                            let activity_ptr = activity.as_raw() as *mut std::ffi::c_void;
+                            unsafe {
+                                ndk_context::initialize_android_context(vm_ptr, activity_ptr);
+                            }
+                        });
+                    });
+                }
+            }
 
             media_control
                 .attach(move |event| {

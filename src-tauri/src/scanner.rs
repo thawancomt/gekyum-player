@@ -1,7 +1,4 @@
-use lofty::picture::MimeType;
-use lofty::tag::Tag;
 use sqlx::SqlitePool;
-use std::fs;
 use std::path::PathBuf;
 use std::{collections::HashSet, path::Path};
 use tauri::AppHandle;
@@ -98,11 +95,15 @@ fn emit_loaded_tracks(app_handle: &AppHandle, tracks: &Vec<TrackRead>) {
 
 fn get_audio_dir() -> String {
     #[cfg(target_os = "android")]
-    return "/storage/emulated/0/Music".to_string();
-
-    dirs::audio_dir()
-        .map(|p| p.to_string_lossy().to_string())
-        .unwrap_or_else(|| "./home/".to_string())
+    {
+        "/storage/emulated/0/Music".to_string()
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+        dirs::audio_dir()
+            .map(|p| p.to_string_lossy().to_string())
+            .unwrap_or_else(|| "./home/".to_string())
+    }
 }
 
 fn discover_new_tracks(excluded_paths: HashSet<PathBuf>) -> HashSet<PathBuf> {

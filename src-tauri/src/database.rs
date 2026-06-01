@@ -185,7 +185,7 @@ pub async fn delete_track(pool: &sqlx::SqlitePool, file_path: String) -> Result<
 pub async fn insert_album(pool: &sqlx::SqlitePool, album: AlbumEntry) -> Result<(), sqlx::Error> {
     let AlbumEntry {
         name,
-        id,
+        id: _,
         cover_path,
     } = album;
 

@@ -16,7 +16,8 @@
                 "title": "gekyum-player",
                 "width": 800,
                 "height": 600,
-                "decorations": true
+                "decorations": true,
+                "fullscreen": true
             }
         ],
         "security": {
