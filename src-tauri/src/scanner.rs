@@ -169,7 +169,6 @@ pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>,
         .iter()
         .filter(|e| !missing_tracks.contains(&e.file_path))
         .cloned()
-        .map(|t| t.with_asset_url())
         .collect();
 
     emit_loaded_tracks(&app_handle, &tracks_to_emit);
@@ -205,11 +204,7 @@ pub async fn auto_search_musics(app_handle: AppHandle) -> Result<Vec<TrackRead>,
     app_handle
         .emit(
             "new_tracks_found",
-            &new_tracks
-                .iter()
-                .cloned()
-                .map(|t| t.with_asset_url())
-                .collect::<Vec<TrackRead>>(),
+            &new_tracks.iter().cloned().collect::<Vec<TrackRead>>(),
         )
         .map_err(|e| format!("Error while emitting new tracks {}", e))?;
 

@@ -53,15 +53,6 @@ pub struct TrackRead {
     pub artist_name: Option<String>,
 }
 
-impl TrackRead {
-    pub fn with_asset_url(mut self) -> Self {
-        self.cover_path = self
-            .cover_path
-            .map(|p| format!("http://asset.localhost/{}", p.replace('\\', "/")));
-        self
-    }
-}
-
 #[derive(Debug, Clone, FromRow, Serialize)]
 pub struct AlbumEntry {
     pub id: Option<i64>,

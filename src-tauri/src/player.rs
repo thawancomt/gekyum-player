@@ -3,6 +3,7 @@ use lofty::picture::MimeType;
 use lofty::read_from_path;
 use lofty::tag::{Accessor, Tag};
 use rodio::{Decoder, DeviceSinkBuilder, Player};
+use souvlaki::MediaPosition;
 use std::fs;
 use std::io::Cursor;
 use std::path::Path;
@@ -119,16 +120,30 @@ pub async fn play(
     let music_data = get_track_data(Path::new(&path), &app).await?;
 
     let current_player = state.player.lock().unwrap();
+    let mut media_control = state.os_media_control.lock().unwrap();
 
     if let Some(player) = current_player.as_ref() {
         player.stop();
-
         player.append(source);
 
+        // Tratamos o erro graciosamente em vez de usar .unwrap()
+        if let Err(e) = media_control.set_metadata(souvlaki::MediaMetadata {
+            title: music_data.title.as_deref(),
+            album: music_data.album_name.as_deref(),
+            artist: music_data.artist_name.as_deref(),
+            cover_url: music_data.cover_path.as_deref(),
+            duration: Some(Duration::from_secs(music_data.duration as u64)),
+        }) {
+            eprintln!("Aviso: Falha ao atualizar os metadados no SO: {:?}", e);
+        }
+
         *state.current_music_bytes.lock().unwrap() = Some(bytes);
-        *state.current_music.lock().unwrap() = Some(music_data.with_asset_url());
+        *state.current_music.lock().unwrap() = Some(music_data);
 
         player.play();
+        media_control.set_playback(souvlaki::MediaPlayback::Playing {
+            progress: Some(MediaPosition(Duration::from_secs(0))),
+        });
         let _ = app.emit("play_state_change", true);
     }
 

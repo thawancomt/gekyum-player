@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "SELECT * FROM albums where name = ?",
+  "query": "SELECT id, name, cover_path FROM albums",
   "describe": {
     "columns": [
       {
@@ -38,7 +38,7 @@
       }
     ],
     "parameters": {
-      "Right": 1
+      "Right": 0
     },
     "nullable": [
       false,
@@ -46,5 +46,5 @@
       true
     ]
   },
-  "hash": "15e09d91872e970774e489d5dc1353922aacc75c1ac8129bde94ba814836e12f"
+  "hash": "bb3b6de6db499c84f6e030ac6a551d98c259305887c8261aa9a4669e2df4f234"
 }

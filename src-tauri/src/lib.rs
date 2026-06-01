@@ -1,10 +1,14 @@
 use crate::database::TrackRead;
+use crate::player::toggle_play;
 use ::rodio::Player;
 use rodio::MixerDeviceSink;
+use souvlaki::MediaControlEvent;
+use souvlaki::MediaControls;
+use souvlaki::PlatformConfig;
 use sqlx::SqlitePool;
-use tauri_plugin_media::MediaExt;
 use std::str::FromStr;
 use std::sync::Mutex;
+use tauri::utils::acl::Value::Null;
 use tauri::Manager;
 mod albums;
 mod database;
@@ -23,10 +27,11 @@ pub struct AppState {
     pub current_position: Mutex<Option<f32>>,
     pub volume: Mutex<Option<f32>>,
     pub pool: SqlitePool,
+    pub os_media_control: Mutex<MediaControls>,
 }
 
 impl AppState {
-    pub fn new(pool: SqlitePool) -> Self {
+    pub fn new(pool: SqlitePool, os_media_control: MediaControls) -> Self {
         Self {
             player: Mutex::new(None),
             handle: Mutex::new(None),
@@ -35,6 +40,7 @@ impl AppState {
             current_music_bytes: Mutex::new(None),
             volume: Mutex::new(None),
             pool: pool,
+            os_media_control: Mutex::new(os_media_control),
         }
     }
 }
@@ -42,7 +48,6 @@ impl AppState {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_media::init())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_notification::init())
         .setup(|app| {
@@ -82,8 +87,42 @@ pub fn run() {
                 pool
             });
 
+            let platform_config = PlatformConfig {
+                dbus_name: "GekyumPlayer",
+                display_name: "Gekyum Player",
+                hwnd: None,
+            };
+
+            let mut media_control = MediaControls::new(platform_config).unwrap();
+
+            let app_handle_for_media = app.handle().clone();
+
+            media_control
+                .attach(move |event| {
+                    match event {
+                        souvlaki::MediaControlEvent::Toggle => {
+                            // Pegamos o estado atualizado direto do AppHandle
+                            let state = app_handle_for_media.state::<AppState>();
+
+                            // Chamamos a sua função passando o estado e um clone do handle
+                            let _ = player::toggle_play(state, app_handle_for_media.clone());
+                        }
+                        souvlaki::MediaControlEvent::Previous => {
+                            let _ = app_handle_for_media.emit("asked_prev", Null);
+                        }
+
+                        souvlaki::MediaControlEvent::Next => {
+                            print!("TESTE");
+                            let _ = app_handle_for_media.emit("asked_next", Null);
+                        }
+
+                        // Aqui você pode adicionar Next, Previous, etc depois
+                        _ => {}
+                    }
+                })
+                .unwrap();
             // Manage app state with the created pool
-            app.manage(AppState::new(pool));
+            app.manage(AppState::new(pool, media_control));
 
             let app_handle = app.app_handle().clone();
             tauri::async_runtime::spawn(async move {
@@ -96,11 +135,6 @@ pub fn run() {
             });
             player_emitter::start_position_emitter(app.handle().clone());
             player_emitter::start_end_track_emitter(app.handle().clone());
-
-            let handle = app.app_handle().clone();
-            app.media().set_event_handler(move |event: tauri_plugin_media::MediaControlEvent| {
-                handle.emit("media_control", &event).ok();
-            });
 
             Ok(())
         })

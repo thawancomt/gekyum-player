@@ -1,7 +1,8 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use nvml_wrapper::Nvml;
+use nvml_wrapper::{enum_wrappers::nv_link::IntDeviceType::Switch, Nvml};
+use souvlaki::{MediaControlEvent, MediaControls, MediaMetadata, PlatformConfig};
 
 fn has_nvidia() -> bool {
     Nvml::init().is_ok()
@@ -15,7 +16,7 @@ fn main() {
 
     if os == "linux" {
         if has_nvidia() {
-            println!("Due limitations we are disable DMABUF for NVIDIA desktops");
+            println!("Due limitations we've disabled DMABUF for NVIDIA desktops");
             std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
         }
     }
