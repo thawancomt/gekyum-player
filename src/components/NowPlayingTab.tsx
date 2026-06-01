@@ -30,11 +30,13 @@ export default function NowPlayingTab() {
 			>
 				<motion.img
 					key={current?.cover_path}
-
 					initial={{ scale: 1, opacity: 0.58 }}
-					animate={{ scale: is_playing ? 1.1 : 1.15, opacity: 0.5, transition: { duration: 1 } }}
+					animate={{
+						scale: is_playing ? 1.1 : 1.15,
+						opacity: 0.5,
+						transition: { duration: 1 },
+					}}
 					exit={{ scale: 1.5, opacity: 0 }}
-
 					src={current?.cover_path || ""}
 					className={cn(
 						"rounded-full w-full scale-150 blur-in blur-xs opacity-20 overflow-hidden hover:scale-105 transition-all duration-300",
@@ -51,7 +53,6 @@ export default function NowPlayingTab() {
 				)}
 			>
 				{current && (
-
 					<motion.div
 						layoutId="album-cover"
 						className="w-full h-full  flex flex-col gap-2 items-center justify-center absolute top-0 left-0 z-999"
@@ -64,21 +65,22 @@ export default function NowPlayingTab() {
 							className={cn(
 								"rounded-full w-100 overflow-hidden hover:scale-105 transition-all duration-300",
 								is_playing &&
-								"animate-spin animation-duration-[300s] hover:scale-101 shadow",
+									"animate-spin animation-duration-[300s] hover:scale-101 shadow",
 							)}
 							alt="album-cover"
 						/>
 						<div className="hidden sm:flex flex-col  justify-center text-center">
-							<h1 className="text-zinc-200 font-medium">{current?.album_name}</h1>
+							<h1 className="text-zinc-200 font-medium">
+								{current?.album_name}
+							</h1>
 							<section className="flex gap-2 items-center min-h-1/12 sticky top-0 text-xs">
-								<h1>
-									{current?.title ?? current.file_path}
-								</h1>
+								<h1>{current?.title ?? current.file_path}</h1>
 								<div className="bg-zinc-700 h-2 w-2 rounded-full" />
-								<h3 className="text-zinc-700 font-semibold">{current?.artist_name}</h3>
+								<h3 className="text-zinc-700 font-semibold">
+									{current?.artist_name}
+								</h3>
 							</section>
 						</div>
-
 					</motion.div>
 				)}
 
@@ -95,15 +97,14 @@ export default function NowPlayingTab() {
 			>
 				<div className="flex flex-col  h-full  z-20 p-8">
 					{tracks.map((track) => (
-						<AlbumTrack data={track} />
+						<AlbumTrack data={track} key={track.file_path} />
 					))}
-
 
 					<div className="text-center p-2 text-zinc-700 grow  flex items-end justify-center">
 						Good things come to an end :)
 					</div>
 				</div>
 			</section>
-		</motion.div >
+		</motion.div>
 	);
 }
