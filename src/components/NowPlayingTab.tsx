@@ -69,13 +69,13 @@ export default function NowPlayingTab() {
 							alt="album-cover"
 						/>
 						<div className="hidden sm:flex flex-col  justify-center text-center">
-							<h1 className="text-zinc-500 font-medium">{current?.album_name}</h1>
+							<h1 className="text-zinc-200 font-medium">{current?.album_name}</h1>
 							<section className="flex gap-2 items-center min-h-1/12 sticky top-0 text-xs">
 								<h1>
 									{current?.title ?? current.file_path}
 								</h1>
 								<div className="bg-zinc-700 h-2 w-2 rounded-full" />
-								<h3 className="text-zinc-600 font-semibold">{current?.artist_name}</h3>
+								<h3 className="text-zinc-700 font-semibold">{current?.artist_name}</h3>
 							</section>
 						</div>
 
