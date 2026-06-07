@@ -22,13 +22,16 @@ export default function MusicTab({ searchPath }: MusicTabProps) {
   const [search, setSearch] = useState("");
 
   const filteredMusics = useMemo(() => {
-    const fmt = search.toLowerCase();
+    const fmt = search.toLowerCase().trim();
+
+    if (!fmt) return musics;
+
     return musics.filter(
       (music) =>
         music.title?.toLowerCase().includes(fmt) ||
         music.file_path.toLowerCase().includes(fmt),
     );
-  }, [search]);
+  }, [search, musics]);
 
   return (
     <motion.div className="grid grid-cols-1 px-2  sm:p-8    gap-8  overflow-auto grow">
@@ -54,9 +57,9 @@ export default function MusicTab({ searchPath }: MusicTabProps) {
       <AnimatePresence mode="wait">
         <section className="w-full " >
           {filteredMusics.map((track, index) => (
-            <div key={track.file_path} className="flex relative overflow-hidden items-center gap-2  my-2   max-w-3xl mx-auto group transition-all duration-300">
+            <div key={track.file_path} className=" flex relative overflow-hidden items-center gap-2  my-2   max-w-3xl mx-auto group transition-all duration-300">
               <div className=" flex items-center w-full  transition-all duration-300 gap-2 relative">
-                <h1 className="font-bold text-2xl text-zinc-500 w-12">
+                <h1 className="font-bold text-2xl text-zinc-500 min-w-12">
                   {index + 1}
                 </h1>
                 <TrackCard track={track} showPlayButton />

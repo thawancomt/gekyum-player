@@ -58,8 +58,8 @@ export default function AlbumTrack({ data }: MusicItemProps) {
     >
       {
         isCurrentTrack && (
-          <div className="absolute inset-0 rotate-180 opacity-25 bgblu">
-            <Aurora colorStops={["#d4d4d8", "#51a2ff", "#d4d4d8"]} />
+          <div className="absolute inset-0  opacity-55 ">
+            <Aurora colorStops={["#d4d4d8", "#d4d4d8", "#d4d4d8"]} />
           </div>
         )
       }

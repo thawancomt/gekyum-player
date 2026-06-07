@@ -7,6 +7,7 @@ import {
 	ChevronDown,
 	Heart,
 	Info,
+	Plus,
 	Shuffle,
 	Volume,
 	X,
@@ -20,6 +21,7 @@ import { useSideBar } from "@/stores/useSideBar";
 import SoftAurora from "../SoftAurora";
 import { useTab } from "@/stores/useTab";
 import Aurora from "../Aurora";
+import { AudioLinesIcon } from "../player/AudioLinesIcon";
 
 export default function PlayerFooter() {
 	const {
@@ -127,8 +129,12 @@ export default function PlayerFooter() {
 							setShowOptions((prev) => !prev);
 						}}
 					>
-						<X />
+						{
+							showOptions ? <X /> : <Plus />
+						}
 					</Button>
+
+					<AudioLinesIcon />
 
 					{showOptions && (
 						<div className="flex items-center">

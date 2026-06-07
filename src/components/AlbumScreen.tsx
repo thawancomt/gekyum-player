@@ -25,6 +25,7 @@ export function AlbumScreen() {
 
   return (
     <AnimatePresence mode="wait">
+
       <motion.section
         initial={{
           opacity: 0,
@@ -48,7 +49,7 @@ export function AlbumScreen() {
       >
 
         <div className="grow flex justify-center items-center flex-col  w-full z-50  ">
-          <header className="  gap-2 items-center sticky top-0 z-10 bg-zinc-100 w-full flex justify-center p-3">
+          <header className="  gap-2 items-center sticky top-0 z-50 bg-zinc-200 w-full flex justify-center p-3">
             {isThisAlbumPlaying && (
               <motion.div
                 initial={{
@@ -72,7 +73,8 @@ export function AlbumScreen() {
                 </motion.div>
               </motion.div>
             )}
-            <motion.div className="flex  justify-center  z-10 ">
+            <motion.div className="flex items-center space-x-2  justify-center  z-10 ">
+              <img src={albums[selectedAlbum || ""]?.[0]?.cover_path} alt="Album Cover" height={128} width={128} />
               <motion.h1
                 layoutId={`album-${selectedAlbum}`}
                 className="font-semibold text-2xl"
