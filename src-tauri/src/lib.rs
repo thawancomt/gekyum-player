@@ -47,6 +47,7 @@ impl AppState {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default()
+        .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_notification::init())
         .setup(|app| {
@@ -85,7 +86,6 @@ pub fn run() {
 
                 pool
             });
-
 
             #[cfg(target_os = "windows")]
             let hwnd = {
@@ -132,28 +132,26 @@ pub fn run() {
 
             if let Some(ref mut controls) = media_control {
                 controls
-                    .attach(move |event| {
-                        match event {
-                            souvlaki::MediaControlEvent::Toggle => {
-                                let state = app_handle_for_media.state::<AppState>();
-                                let _ = player::toggle_play(state, app_handle_for_media.clone());
-                            }
-                            souvlaki::MediaControlEvent::Previous => {
-                                let _ = app_handle_for_media.emit("asked_prev", Null);
-                            }
-                            souvlaki::MediaControlEvent::Play => {
-                                let state = app_handle_for_media.state::<AppState>();
-                                let _ = player::toggle_play(state, app_handle_for_media.clone());
-                            }
-                            souvlaki::MediaControlEvent::Pause => {
-                                let state = app_handle_for_media.state::<AppState>();
-                                let _ = player::toggle_play(state, app_handle_for_media.clone());
-                            }
-                            souvlaki::MediaControlEvent::Next => {
-                                let _ = app_handle_for_media.emit("asked_next", Null);
-                            }
-                            _ => {}
+                    .attach(move |event| match event {
+                        souvlaki::MediaControlEvent::Toggle => {
+                            let state = app_handle_for_media.state::<AppState>();
+                            let _ = player::toggle_play(state, app_handle_for_media.clone());
                         }
+                        souvlaki::MediaControlEvent::Previous => {
+                            let _ = app_handle_for_media.emit("asked_prev", Null);
+                        }
+                        souvlaki::MediaControlEvent::Play => {
+                            let state = app_handle_for_media.state::<AppState>();
+                            let _ = player::toggle_play(state, app_handle_for_media.clone());
+                        }
+                        souvlaki::MediaControlEvent::Pause => {
+                            let state = app_handle_for_media.state::<AppState>();
+                            let _ = player::toggle_play(state, app_handle_for_media.clone());
+                        }
+                        souvlaki::MediaControlEvent::Next => {
+                            let _ = app_handle_for_media.emit("asked_next", Null);
+                        }
+                        _ => {}
                     })
                     .unwrap();
             }

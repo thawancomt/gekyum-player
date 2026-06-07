@@ -51,7 +51,7 @@ pub fn get_player_state(state: State<AppState>) -> PlayerState {
                 is_paused: p.is_paused(),
                 current,
             }
-        },
+        }
         None => PlayerState {
             current: None,
             volume: volume_val,
@@ -113,7 +113,10 @@ pub fn start_end_track_emitter(app_handle: tauri::AppHandle) {
                 let mut current_music_bytes_guard = match state.current_music_bytes.lock() {
                     Ok(guard) => guard,
                     Err(e) => {
-                        log::error!("Failed to lock current_music_bytes in end track emitter: {}", e);
+                        log::error!(
+                            "Failed to lock current_music_bytes in end track emitter: {}",
+                            e
+                        );
                         continue;
                     }
                 };

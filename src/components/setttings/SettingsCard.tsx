@@ -52,6 +52,13 @@ export default function SettingsCard() {
 
 
                 <ViewLoadedTracks />
+
+                <div className="flex justify-center">
+                    <p>Made by</p>
+                    <a href="https://thawancomt.com" target="_blank" rel="noopener noreferrer" className="underline pl-2">
+                        thawancomt
+                    </a>
+                </div>
             </DialogContent>
         </Dialog>
     )

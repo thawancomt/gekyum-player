@@ -49,7 +49,7 @@ export default function NavBar() {
             <div className="relative flex h-full flex-1 flex-col items-center justify-start ">
                 <div className="flex w-full items-center justify-center gap-4 ">
                     {
-                        (["albums", "musics", "liked"] satisfies Tab[]).map(tab => {
+                        (["albums", "tracks", "liked"] satisfies Tab[]).map(tab => {
                             return <Button variant={"link"} onClick={() => { toggleTab(tab) }}
                                 className={cn(
                                     currentTab === tab ? "" : "text-muted-foreground/50",

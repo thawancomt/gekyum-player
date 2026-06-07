@@ -40,8 +40,8 @@ fn _ensure_player(state: &State<AppState>) -> Result<(), String> {
         return Ok(());
     }
 
-    let handle = DeviceSinkBuilder::open_default_sink()
-        .map_err(|e| format!("Erro ao abrir Sink: {e}"))?;
+    let handle =
+        DeviceSinkBuilder::open_default_sink().map_err(|e| format!("Erro ao abrir Sink: {e}"))?;
 
     let new_player = Player::connect_new(&handle.mixer());
 

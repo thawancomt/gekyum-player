@@ -110,18 +110,18 @@ fn discover_new_tracks(excluded_paths: HashSet<PathBuf>) -> HashSet<PathBuf> {
     let audio_dir = get_audio_dir();
     println!("Audio dir: {:?}", audio_dir);
     WalkDir::new(Path::new(&audio_dir))
-    .into_iter()
-    .filter_map(|dir| dir.ok())
-    .filter(|file| file.path().is_file())
-    .filter(|file| !excluded_paths.contains(file.path())) // IGNORE PATH WE ALREADY NOW TRACKS
-    .filter(|file| {
-        if let Some(ext) = file.path().extension().and_then(|ext| ext.to_str()) {
-            return matches!(ext, "mp3" | "m4a" | "flac" | "wav");
-        }
-        false
-    })
-    .map(|e| e.path().to_path_buf())
-    .collect()
+        .into_iter()
+        .filter_map(|dir| dir.ok())
+        .filter(|file| file.path().is_file())
+        .filter(|file| !excluded_paths.contains(file.path())) // IGNORE PATH WE ALREADY NOW TRACKS
+        .filter(|file| {
+            if let Some(ext) = file.path().extension().and_then(|ext| ext.to_str()) {
+                return matches!(ext, "mp3" | "m4a" | "flac" | "wav");
+            }
+            false
+        })
+        .map(|e| e.path().to_path_buf())
+        .collect()
 }
 
 #[tauri::command]

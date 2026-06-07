@@ -36,7 +36,7 @@ export default function MusicTab({ searchPath }: MusicTabProps) {
   return (
     <motion.div className="grid grid-cols-1 px-2  sm:p-8    gap-8  overflow-auto grow">
       <header className="col-span-full">
-        <Input placeholder="" value={search} onChange={(e) => setSearch(e.target.value)} className="bg-transparent ring-1 ring-zinc-400 rounded-none!" />
+        <Input placeholder="Search tracks..." value={search} onChange={(e) => setSearch(e.target.value)} className="bg-transparent ring-1 ring-zinc-400 rounded-none!" />
       </header>
       <section className="flex flex-col items-center justify-center">
         <div>

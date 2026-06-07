@@ -5,7 +5,7 @@ export const tabs = [
 	"albums",
 	"artists",
 	"playlists",
-	"musics",
+	"tracks",
 	"liked",
 	"recent",
 	"most played",
