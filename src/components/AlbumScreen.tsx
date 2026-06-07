@@ -10,7 +10,8 @@ export function AlbumScreen() {
   const { albums, selectedAlbum } = useAlbum();
   const {
     actions: { addAlbumToQueue },
-    index, tracks
+    index,
+    tracks,
   } = usePlaylist();
 
   const { current: currentTrack, is_playing } = usePlayer();
@@ -25,7 +26,6 @@ export function AlbumScreen() {
 
   return (
     <AnimatePresence mode="wait">
-
       <motion.section
         initial={{
           opacity: 0,
@@ -45,9 +45,8 @@ export function AlbumScreen() {
           delay: 0.2,
         }}
         layoutId={`morph-${name}-sub`}
-        className="absolute  inset-0 flex flex-col overflow-y-auto    items-start   mx-auto   no-scrollbar border  "
+        className="absolute  inset-0 flex flex-col overflow-y-auto    items-start   mx-auto   no-scrollbar   "
       >
-
         <div className="grow flex justify-center items-center flex-col  w-full z-50  ">
           <header className="  gap-2 items-center sticky top-0 z-50 bg-zinc-200 w-full flex justify-center p-3">
             {isThisAlbumPlaying && (
@@ -74,7 +73,16 @@ export function AlbumScreen() {
               </motion.div>
             )}
             <motion.div className="flex items-center space-x-2  justify-center  z-10 ">
-              <img src={albums[selectedAlbum || ""]?.[0]?.cover_path} alt="Album Cover" height={128} width={128} />
+              <motion.img
+                src={
+                  albums[selectedAlbum]?.[0]?.cover_path || "/gekyum-logo.png"
+                }
+                alt="Album Cover"
+                height={128}
+                width={128}
+                layoutId={`album-item-cover-${selectedAlbum}`}
+                className="z-99"
+              />
               <motion.h1
                 layoutId={`album-${selectedAlbum}`}
                 className="font-semibold text-2xl"
@@ -90,11 +98,25 @@ export function AlbumScreen() {
               )}
             </motion.div>
           </header>
-
-          {albums[selectedAlbum || ""]?.map((msc) => (
-            <AlbumTrack data={msc} />
-          ))}
-
+          <div className="grow w-full ">
+            {albums[selectedAlbum || ""]?.map((msc) => (
+              <motion.div
+                initial={{
+                  x: 200,
+                }}
+                whileInView={{
+                  x: 0,
+                }}
+                viewport={{
+                  once: false,
+                  amount: 0.1,
+                }}
+                key={msc.file_path}
+              >
+                <AlbumTrack data={msc} />
+              </motion.div>
+            ))}
+          </div>
         </div>
       </motion.section>
     </AnimatePresence>

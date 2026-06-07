@@ -7,6 +7,7 @@ import { usePlaylist } from "@/stores/usePlaylist";
 import { usePlayer } from "@/stores/usePlayer";
 import { Pause } from "lucide-react";
 import Aurora from "../Aurora";
+import { AudioLinesIcon } from "../player/AudioLinesIcon";
 
 interface MusicItemProps {
   data: Track;
@@ -17,10 +18,7 @@ export default function AlbumTrack({ data }: MusicItemProps) {
     actions: { addToQueue },
   } = usePlaylist();
   const [isHover, setIsHover] = useState(false);
-  const {
-    current,
-    is_playing,
-  } = usePlayer();
+  const { current, is_playing } = usePlayer();
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -56,14 +54,6 @@ export default function AlbumTrack({ data }: MusicItemProps) {
           : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/20",
       )}
     >
-      {
-        isCurrentTrack && (
-          <div className="absolute inset-0  opacity-55 ">
-            <Aurora colorStops={["#d4d4d8", "#d4d4d8", "#d4d4d8"]} />
-          </div>
-        )
-      }
-
       {/* Esquerda: Index + Detalhes */}
       <div className="flex items-center gap-6 font-mono tracking-tight text-xs z-20">
         {/* Número da faixa ou indicador de play sutil */}
@@ -73,7 +63,7 @@ export default function AlbumTrack({ data }: MusicItemProps) {
             isCurrentTrack && "text-zinc-500 font-bold", // Um único ponto de cor industrial se estiver ativo
           )}
         >
-          {isThisTrackPlaying ? <Pause /> : formattedIndex}
+          {isThisTrackPlaying ? <AudioLinesIcon /> : formattedIndex}
         </span>
 
         {/* Título e Artista empilhados sem frescura */}
@@ -118,7 +108,6 @@ export default function AlbumTrack({ data }: MusicItemProps) {
             : "--:--"}
         </span>
       </div>
-
     </motion.div>
   );
 }
